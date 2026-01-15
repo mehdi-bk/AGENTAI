@@ -38,18 +38,16 @@ export default function DashboardLayout() {
       return emailName.charAt(0).toUpperCase() + emailName.slice(1);
     }
     
-    // Utilisateur authentifié - récupère l'entreprise
-    if (user?.user_metadata?.company) {
-      // Extrait juste le nom de l'entreprise (avant le pipe si présent)
-      const companyData = user.user_metadata.company;
-      const companyName = companyData.split('|')[0].trim();
+    // Utilisateur authentifié - récupère l'entreprise depuis metadata
+    const metadata = user?.user_metadata || {};
+    
+    if (metadata.company) {
+      // Si company contient un pipe (ancien format), extraire juste le nom
+      const companyName = metadata.company.split('|')[0].trim();
       return companyName;
     }
     
-    if (user?.user_metadata?.full_name) {
-      return user.user_metadata.full_name.split(' ')[0]; // Prénom seulement
-    }
-    
+    // Fallback sur l'email
     if (user?.email) {
       const emailName = user.email.split('@')[0];
       return emailName.charAt(0).toUpperCase() + emailName.slice(1);

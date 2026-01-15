@@ -11,6 +11,8 @@ import LoginPage from '@/app/pages/auth/LoginPage';
 import SignupPage from '@/app/pages/auth/SignupPage';
 import ForgotPasswordPage from '@/app/pages/auth/ForgotPasswordPage';
 import VerifyCodePage from '@/app/pages/auth/VerifyCodePage';
+import OnboardingPage from '@/app/pages/auth/OnboardingPage';
+import AuthCallbackPage from '@/app/pages/auth/AuthCallbackPage';
 
 // Dashboard
 import DashboardLayout from '@/app/components/DashboardLayout';
@@ -39,6 +41,8 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify-code" element={<VerifyCodePage />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           
           {/* Dashboard - Protected */}

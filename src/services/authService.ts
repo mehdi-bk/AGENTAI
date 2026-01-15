@@ -16,6 +16,64 @@ export interface SignUpParams {
 }
 
 /**
+ * Authentification avec Google OAuth
+ */
+export const signInWithGoogle = async () => {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${import.meta.env.VITE_APP_URL}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+
+    if (error) throw error;
+
+    return {
+      success: true,
+      data,
+    };
+  } catch (error: any) {
+    console.error('Error signing in with Google:', error);
+    return {
+      success: false,
+      message: error.message || 'Erreur lors de la connexion avec Google',
+      data: null,
+    };
+  }
+};
+
+/**
+ * Vérifie si l'utilisateur a complété l'onboarding
+ */
+export const checkOnboardingStatus = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { completed: false, needsOnboarding: false };
+    }
+
+    const metadata = user.user_metadata || {};
+    const onboardingCompleted = metadata.onboarding_completed === true;
+    const hasCompany = !!metadata.company;
+
+    return {
+      completed: onboardingCompleted && hasCompany,
+      needsOnboarding: !onboardingCompleted || !hasCompany,
+      user,
+    };
+  } catch (error) {
+    console.error('Error checking onboarding status:', error);
+    return { completed: false, needsOnboarding: false };
+  }
+};
+
+/**
  * Envoie un code de vérification OTP par email
  */
 export const sendVerificationCode = async ({ email }: SignInWithOTPParams) => {
