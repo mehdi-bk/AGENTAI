@@ -4,7 +4,7 @@ import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { Brain, Loader2, Mail } from 'lucide-react';
-import { sendVerificationCode, signInWithGoogle } from '@/services/authService';
+import { sendVerificationCode, signInWithGoogle, signInWithOutlook } from '@/services/authService';
 import { toast } from 'sonner';
 
 export default function LoginPage() {
@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [outlookLoading, setOutlookLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +52,22 @@ export default function LoginPage() {
     } catch (error) {
       toast.error('Erreur lors de la connexion avec Google');
       setGoogleLoading(false);
+    }
+  };
+
+  const handleOutlookSignIn = async () => {
+    setOutlookLoading(true);
+    try {
+      const result = await signInWithOutlook();
+      
+      if (!result.success) {
+        toast.error(result.message || 'Erreur lors de la connexion avec Outlook');
+        setOutlookLoading(false);
+      }
+      // Si succès, Supabase redirige automatiquement vers Azure OAuth
+    } catch (error) {
+      toast.error('Erreur lors de la connexion avec Outlook');
+      setOutlookLoading(false);
     }
   };
   
@@ -148,6 +165,28 @@ export default function LoginPage() {
                     <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                   </svg>
                   Continue with Google
+                </>
+              )}
+            </Button>
+            
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full"
+              onClick={handleOutlookSignIn} 
+              disabled={outlookLoading}
+            >
+              {outlookLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Connexion...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 7.387v9.226a3.387 3.387 0 01-3.387 3.387h-6.226V3h6.226A3.387 3.387 0 0124 6.387v1zM13.355 3v17H3.387A3.387 3.387 0 010 16.613V7.387A3.387 3.387 0 013.387 4h9.968v-1zm-2.258 8.516c0-1.161-.968-2.097-2.161-2.097-1.194 0-2.162.936-2.162 2.097 0 1.161.968 2.097 2.162 2.097 1.193 0 2.161-.936 2.161-2.097z"/>
+                  </svg>
+                  Continue with Outlook
                 </>
               )}
             </Button>

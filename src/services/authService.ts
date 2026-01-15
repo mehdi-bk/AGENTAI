@@ -48,6 +48,35 @@ export const signInWithGoogle = async () => {
 };
 
 /**
+ * Authentification avec Outlook/Microsoft Azure OAuth
+ */
+export const signInWithOutlook = async () => {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'azure',
+      options: {
+        redirectTo: `${import.meta.env.VITE_APP_URL}/auth/callback`,
+        scopes: 'email openid profile offline_access',
+      },
+    });
+
+    if (error) throw error;
+
+    return {
+      success: true,
+      data,
+    };
+  } catch (error: any) {
+    console.error('Error signing in with Outlook:', error);
+    return {
+      success: false,
+      message: error.message || 'Erreur lors de la connexion avec Outlook',
+      data: null,
+    };
+  }
+};
+
+/**
  * Vérifie si l'utilisateur a complété l'onboarding
  */
 export const checkOnboardingStatus = async () => {
