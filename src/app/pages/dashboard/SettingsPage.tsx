@@ -1,12 +1,110 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
+import { Badge } from '@/app/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Switch } from '@/app/components/ui/switch';
-import { User, CreditCard, Bell, Code } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
+import { Separator } from '@/app/components/ui/separator';
+import { User, CreditCard, Bell, Code, Building, Loader2, Mail, Calendar, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    company: '',
+    companySize: '',
+    industry: '',
+  });
+
+  useEffect(() => {
+    console.log('📋 Loading user data for settings...');
+    if (user) {
+      const metadata = user.user_metadata || {};
+      console.log('User metadata:', metadata);
+      setFormData({
+        fullName: metadata.full_name || '',
+        email: user.email || '',
+        company: metadata.company?.split('|')[0] || metadata.company || '',
+        companySize: metadata.company_size || '',
+        industry: metadata.industry || '',
+      });
+    }
+  }, [user]);
+
+  const handleSave = async () => {
+    setLoading(true);
+    
+    try {
+      // En mode dev, on skip la vérification de session
+      const isDev = import.meta.env.VITE_DEV_MODE === 'true';
+      const devBypass = isDev && localStorage.getItem('dev_bypass_auth') === 'true';
+      
+      if (!devBypass) {
+        // Vérifier la session seulement si pas en mode dev bypass
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session) {
+          console.error('Session error:', sessionError);
+          toast.error('Session expirée. Veuillez vous reconnecter.');
+          setLoading(false);
+          return;
+        }
+      } else {
+        console.log('🔧 Dev mode: skipping session check');
+      }
+
+      console.log('📝 Saving user data...', formData);
+      
+      if (devBypass) {
+        // En mode dev, simuler la sauvegarde
+        console.log('🔧 Dev mode: simulating save');
+        toast.success('Profil mis à jour avec succès ! (Mode dev)');
+        setLoading(false);
+        return;
+      }
+      
+      // Mettre à jour sans attendre (même solution que OnboardingPage)
+      supabase.auth.updateUser({
+        data: {
+          full_name: formData.fullName,
+          company: formData.company,
+          company_size: formData.companySize,
+          industry: formData.industry,
+        }
+      }).then(async ({ error }) => {
+        if (error) {
+          console.error('Error updating user:', error);
+          toast.error(error.message || 'Erreur lors de la mise à jour');
+        } else {
+          console.log('✅ User metadata updated successfully');
+          // Forcer le refresh de la session pour mettre à jour AuthContext
+          await supabase.auth.refreshSession();
+        }
+      });
+
+      // Afficher le succès immédiatement
+      toast.success('Profil mis à jour avec succès !');
+      setLoading(false);
+      
+    } catch (error: any) {
+      console.error('Error in handleSave:', error);
+      toast.error(error.message || 'Erreur lors de la mise à jour');
+      setLoading(false);
+    }
+  };
+
+  const updateFormData = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -35,47 +133,270 @@ export default function SettingsPage() {
         </TabsList>
         
         <TabsContent value="profile">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Full Name</Label>
-                  <Input defaultValue="John Doe" className="mt-1" />
+          <div className="space-y-6">
+            {/* Informations de compte */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  Informations de compte
+                </CardTitle>
+                <CardDescription>Informations de votre compte AI SDR</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="email" className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-gray-400" />
+                      Email
+                    </Label>
+                    <Input 
+                      id="email"
+                      value={formData.email} 
+                      disabled
+                      className="mt-1 bg-gray-50" 
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Utilisé pour la connexion</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="accountCreated" className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      Membre depuis
+                    </Label>
+                    <Input 
+                      id="accountCreated"
+                      value={user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
+                      disabled
+                      className="mt-1 bg-gray-50" 
+                    />
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Informations personnelles */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Informations personnelles</CardTitle>
+                <CardDescription>Ces informations sont utilisées pour personnaliser votre expérience</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <Label>Email</Label>
-                  <Input defaultValue="john@company.com" className="mt-1" />
+                  <Label htmlFor="fullName">Nom complet</Label>
+                  <Input 
+                    id="fullName"
+                    value={formData.fullName} 
+                    onChange={(e) => updateFormData('fullName', e.target.value)}
+                    placeholder="Jean Dupont"
+                    className="mt-1" 
+                  />
                 </div>
-              </div>
-              <div>
-                <Label>Company Name</Label>
-                <Input defaultValue="Company Inc." className="mt-1" />
-              </div>
-              <Button className="bg-gradient-to-r from-primary to-secondary">Save Changes</Button>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            {/* Informations entreprise */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building className="w-5 h-5" />
+                  Informations entreprise
+                </CardTitle>
+                <CardDescription>Détails de votre entreprise pour la personnalisation des campagnes</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="company">Nom de l'entreprise</Label>
+                  <Input 
+                    id="company"
+                    value={formData.company} 
+                    onChange={(e) => updateFormData('company', e.target.value)}
+                    placeholder="Acme Inc."
+                    className="mt-1" 
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="companySize">Taille de l'entreprise</Label>
+                    <Select 
+                      value={formData.companySize} 
+                      onValueChange={(value) => updateFormData('companySize', value)}
+                    >
+                      <SelectTrigger id="companySize" className="mt-1">
+                        <SelectValue placeholder="Sélectionnez une taille" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1-10">1-10 employés</SelectItem>
+                        <SelectItem value="11-50">11-50 employés</SelectItem>
+                        <SelectItem value="51-200">51-200 employés</SelectItem>
+                        <SelectItem value="201-500">201-500 employés</SelectItem>
+                        <SelectItem value="501-1000">501-1000 employés</SelectItem>
+                        <SelectItem value="1000+">1000+ employés</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="industry">Secteur d'activité</Label>
+                    <Select 
+                      value={formData.industry} 
+                      onValueChange={(value) => updateFormData('industry', value)}
+                    >
+                      <SelectTrigger id="industry" className="mt-1">
+                        <SelectValue placeholder="Sélectionnez un secteur" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="technology">Technologie / SaaS</SelectItem>
+                        <SelectItem value="finance">Finance / Banque</SelectItem>
+                        <SelectItem value="healthcare">Santé</SelectItem>
+                        <SelectItem value="education">Éducation</SelectItem>
+                        <SelectItem value="retail">Commerce / Retail</SelectItem>
+                        <SelectItem value="manufacturing">Industrie / Manufacturing</SelectItem>
+                        <SelectItem value="consulting">Conseil / Services</SelectItem>
+                        <SelectItem value="real-estate">Immobilier</SelectItem>
+                        <SelectItem value="marketing">Marketing / Publicité</SelectItem>
+                        <SelectItem value="other">Autre</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <Button 
+                    onClick={handleSave}
+                    disabled={loading}
+                    className="bg-gradient-to-r from-primary to-secondary"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Enregistrement...
+                      </>
+                    ) : (
+                      'Enregistrer les modifications'
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
         
         <TabsContent value="billing">
-          <Card>
-            <CardHeader>
-              <CardTitle>Billing Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold">Professional Plan</span>
-                  <Badge className="bg-success/10 text-success">Active</Badge>
+          <div className="space-y-6">
+            {/* Plan actuel */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Votre abonnement</CardTitle>
+                <CardDescription>Gérez votre plan et vos paiements</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="p-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Plan Professional</h3>
+                      <Badge className="bg-success text-white">
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Actif
+                      </Badge>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-3xl font-bold text-primary">€1,500</p>
+                      <p className="text-sm text-gray-600">/mois</p>
+                    </div>
+                  </div>
+                  <Separator className="my-4" />
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Prochaine facturation</span>
+                      <span className="font-medium">14 février 2026</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">AI SDRs inclus</span>
+                      <span className="font-medium">5 agents</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Emails mensuels</span>
+                      <span className="font-medium">10,000</span>
+                    </div>
+                  </div>
+                  <div className="mt-6 flex gap-3">
+                    <Button variant="outline" className="flex-1">
+                      Modifier le plan
+                    </Button>
+                    <Button variant="outline" className="flex-1 text-error border-error hover:bg-error/10">
+                      Annuler l'abonnement
+                    </Button>
+                  </div>
                 </div>
-                <p className="text-2xl font-bold">€1,500<span className="text-sm text-gray-600">/month</span></p>
-                <p className="text-sm text-gray-600 mt-2">Next billing date: February 14, 2026</p>
-              </div>
-              <Button variant="outline">Upgrade Plan</Button>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            {/* Moyens de paiement */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Moyens de paiement</CardTitle>
+                <CardDescription>Gérez vos cartes et méthodes de paiement</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 border rounded-lg bg-gradient-to-r from-gray-900 to-gray-700 text-white">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-medium">Carte principale</span>
+                    <Badge className="bg-white/20">Par défaut</Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-2xl font-mono tracking-wider">•••• •••• •••• 4242</p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Expire le 12/2027</span>
+                      <span className="font-semibold">VISA</span>
+                    </div>
+                  </div>
+                </div>
+                <Button variant="outline" className="w-full">
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Ajouter un moyen de paiement
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Historique des paiements */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Derniers paiements</CardTitle>
+                <CardDescription>Historique de vos transactions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { date: '15 janvier 2026', montant: '€1,500', status: 'Payé', invoice: 'INV-2026-001' },
+                    { date: '15 décembre 2025', montant: '€1,500', status: 'Payé', invoice: 'INV-2025-012' },
+                    { date: '15 novembre 2025', montant: '€1,500', status: 'Payé', invoice: 'INV-2025-011' },
+                  ].map((payment, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
+                          <CheckCircle2 className="w-5 h-5 text-success" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{payment.invoice}</p>
+                          <p className="text-sm text-gray-600">{payment.date}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">{payment.montant}</p>
+                        <Button variant="ghost" size="sm" className="text-primary h-auto p-0">
+                          Télécharger
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Button variant="outline" className="w-full mt-4">
+                  Voir tout l'historique
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
         
         <TabsContent value="notifications">

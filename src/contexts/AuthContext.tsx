@@ -33,15 +33,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Récupère la session initiale
     const initializeAuth = async () => {
       try {
-        const currentSession = await getCurrentSession();
-        setSession(currentSession);
+        console.log('🔄 Initializing auth...');
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
         
-        if (currentSession) {
-          const currentUser = await getCurrentUser();
-          setUser(currentUser);
+        if (error) {
+          console.error('❌ Session error:', error);
+          setSession(null);
+          setUser(null);
+        } else if (currentSession) {
+          console.log('📦 Session found: YES', currentSession.user.email);
+          setSession(currentSession);
+          setUser(currentSession.user);
+        } else {
+          console.log('📦 Session found: NO');
+          setSession(null);
+          setUser(null);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
+        setSession(null);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -51,13 +62,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // Écoute les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, newSession) => {
-        setSession(newSession);
+      async (event, newSession) => {
+        console.log('🔔 Auth state changed:', event, newSession ? 'Session exists' : 'No session');
         
-        if (newSession) {
-          const currentUser = await getCurrentUser();
-          setUser(currentUser);
+        if (event === 'SIGNED_OUT') {
+          console.log('👋 User signed out');
+          setSession(null);
+          setUser(null);
+        } else if (event === 'TOKEN_REFRESHED') {
+          console.log('🔄 Token refreshed');
+          setSession(newSession);
+          setUser(newSession?.user || null);
+        } else if (newSession) {
+          console.log('✅ Session updated:', newSession.user.email);
+          setSession(newSession);
+          setUser(newSession.user);
         } else {
+          setSession(null);
           setUser(null);
         }
         

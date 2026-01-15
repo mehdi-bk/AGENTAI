@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,8 +23,9 @@ export default function LoginPage() {
       
       if (result.success) {
         toast.success(result.message);
-        // Stocke l'email pour la page de vérification
+        // Stocke l'email et la préférence "remember me"
         localStorage.setItem('verification_email', email);
+        localStorage.setItem('remember_me', rememberMe.toString());
         navigate(`/verify-code?email=${encodeURIComponent(email)}`);
       } else {
         toast.error(result.message);
@@ -86,6 +88,19 @@ export default function LoginPage() {
               <p className="text-xs text-gray-500 mt-2">
                 We'll send you a 6-digit verification code
               </p>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="remember"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+              />
+              <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer font-normal">
+                Se souvenir de moi
+              </Label>
             </div>
             
             <Button 

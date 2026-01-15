@@ -1,6 +1,6 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Brain, Home, Rocket, Users, Calendar, BarChart3, Bot, Plug, Settings, Bell, ChevronLeft, Menu, Search, LogOut, AlertCircle } from 'lucide-react';
+import { Brain, Home, Rocket, Users, Calendar, BarChart3, Bot, Plug, Settings, Bell, ChevronLeft, Menu, Search, LogOut, AlertCircle, CreditCard } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import {
@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
   const { signOut, user } = useAuth();
   
   const isDev = import.meta.env.VITE_DEV_MODE === 'true';
@@ -58,6 +59,42 @@ export default function DashboardLayout() {
   
   const userName = getUserName();
   
+  // Récupère le nom complet de l'utilisateur
+  const getUserFullName = () => {
+    if (devBypass) {
+      return localStorage.getItem('dev_user_name') || 'Dev Mode';
+    }
+    
+    const metadata = user?.user_metadata || {};
+    return metadata.full_name || user?.email?.split('@')[0] || 'User';
+  };
+  
+  // Récupère les initiales de l'utilisateur
+  const getUserInitials = () => {
+    if (devBypass) return 'DV';
+    
+    const metadata = user?.user_metadata || {};
+    const fullName = metadata.full_name;
+    
+    if (fullName) {
+      const names = fullName.split(' ');
+      if (names.length >= 2) {
+        return (names[0][0] + names[1][0]).toUpperCase();
+      }
+      return fullName.substring(0, 2).toUpperCase();
+    }
+    
+    if (user?.email) {
+      return user.email.substring(0, 2).toUpperCase();
+    }
+    
+    return 'U';
+  };
+  
+  const userFullName = getUserFullName();
+  const userInitials = getUserInitials();
+  const userEmail = user?.email || devEmail;
+  
   const handleSignOut = async () => {
     await signOut();
     window.location.href = '/login';
@@ -81,7 +118,7 @@ export default function DashboardLayout() {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-between p-6 border-b">
-            <Link to="/" className="flex items-center space-x-2">
+            <Link to="/dashboard" className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
                 <Brain className="w-5 h-5 text-white" />
               </div>
@@ -123,12 +160,12 @@ export default function DashboardLayout() {
                 <div className="flex items-center hover:bg-gray-50 rounded-lg p-2 transition-colors">
                   <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
-                      {devBypass ? 'DV' : 'JD'}
+                      {userInitials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="ml-3 flex-1 text-left">
-                    <p className="text-sm font-medium">{devBypass ? 'Dev Mode' : 'John Doe'}</p>
-                    <p className="text-xs text-gray-500">{devBypass ? devEmail : 'john@company.com'}</p>
+                    <p className="text-sm font-medium">{userFullName}</p>
+                    <p className="text-xs text-gray-500">{userEmail}</p>
                   </div>
                 </div>
               </DropdownMenuTrigger>
@@ -186,7 +223,7 @@ export default function DashboardLayout() {
                   <button className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-sm">
-                        JD
+                        {userInitials}
                       </AvatarFallback>
                     </Avatar>
                   </button>
@@ -194,20 +231,20 @@ export default function DashboardLayout() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
                     <div>
-                      <p className="font-medium">John Doe</p>
-                      <p className="text-xs text-gray-500">john@company.com</p>
+                      <p className="font-medium">{userFullName}</p>
+                      <p className="text-xs text-gray-500">{userEmail}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
                     <Settings className="w-4 h-4 mr-2" />
                     Profile Settings
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Bot className="w-4 h-4 mr-2" />
+                  <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
+                    <CreditCard className="w-4 h-4 mr-2" />
                     Billing
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => window.open('https://help.aisdr.com', '_blank')}>
                     <Bell className="w-4 h-4 mr-2" />
                     Help Center
                   </DropdownMenuItem>

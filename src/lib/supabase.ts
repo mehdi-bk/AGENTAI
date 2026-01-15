@@ -12,8 +12,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+    flowType: 'pkce',
   },
 });
+
+console.log('✅ Supabase client initialized with persistence enabled');
 
 // Types pour l'authentification
 export interface AuthUser {

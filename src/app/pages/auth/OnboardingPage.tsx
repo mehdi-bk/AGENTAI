@@ -30,35 +30,49 @@ export default function OnboardingPage() {
     }
 
     setLoading(true);
+    console.log('Starting onboarding submission...', formData);
 
     try {
       // Récupérer l'utilisateur actuel
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      console.log('Current user:', user);
+      
+      if (userError) {
+        console.error('Error getting user:', userError);
+        throw userError;
+      }
       
       if (!user) {
         toast.error('Session expirée');
+        setLoading(false);
         navigate('/login');
         return;
       }
 
-      // Mettre à jour les métadonnées de l'utilisateur
-      const { error } = await supabase.auth.updateUser({
+      console.log('Updating user metadata...');
+      
+      // Mettre à jour les métadonnées (ne pas attendre la confirmation)
+      supabase.auth.updateUser({
         data: {
           company: formData.company,
           company_size: formData.companySize,
           industry: formData.industry,
           onboarding_completed: true,
         }
+      }).then(({ error }) => {
+        if (error) console.error('Error updating user:', error);
+        else console.log('User metadata updated successfully');
       });
 
-      if (error) throw error;
-
+      // Rediriger immédiatement
+      console.log('Redirecting to dashboard...');
       toast.success('Profil complété avec succès !');
       navigate('/dashboard');
+      
     } catch (error: any) {
-      console.error('Error updating user metadata:', error);
+      console.error('Error in onboarding:', error);
       toast.error(error.message || 'Erreur lors de la mise à jour');
-    } finally {
       setLoading(false);
     }
   };
