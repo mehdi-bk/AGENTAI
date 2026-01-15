@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/app/components/ui/sonner';
+import { AuthProvider } from '@/contexts/AuthContext';
+import ProtectedRoute from '@/app/components/ProtectedRoute';
 
 // Marketing
 import LandingPage from '@/app/pages/LandingPage';
@@ -8,6 +10,7 @@ import LandingPage from '@/app/pages/LandingPage';
 import LoginPage from '@/app/pages/auth/LoginPage';
 import SignupPage from '@/app/pages/auth/SignupPage';
 import ForgotPasswordPage from '@/app/pages/auth/ForgotPasswordPage';
+import VerifyCodePage from '@/app/pages/auth/VerifyCodePage';
 
 // Dashboard
 import DashboardLayout from '@/app/components/DashboardLayout';
@@ -27,34 +30,45 @@ import AdminDashboard from '@/app/pages/admin/AdminDashboard';
 export default function App() {
   return (
     <Router>
-      <Routes>
-        {/* Marketing */}
-        <Route path="/" element={<LandingPage />} />
-        
-        {/* Auth */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        
-        {/* Dashboard */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<Navigate to="/dashboard/home" replace />} />
-          <Route path="home" element={<DashboardHome />} />
-          <Route path="campaigns" element={<CampaignsPage />} />
-          <Route path="prospects" element={<ProspectsPage />} />
-          <Route path="meetings" element={<MeetingsPage />} />
-          <Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="ai-sdr-settings" element={<AISDRSettingsPage />} />
-          <Route path="integrations" element={<IntegrationsPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
-        
-        {/* Admin */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-        </Route>
-      </Routes>
-      <Toaster />
+      <AuthProvider>
+        <Routes>
+          {/* Marketing */}
+          <Route path="/" element={<LandingPage />} />
+          
+          {/* Auth */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/verify-code" element={<VerifyCodePage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          
+          {/* Dashboard - Protected */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<Navigate to="/dashboard/home" replace />} />
+            <Route path="home" element={<DashboardHome />} />
+            <Route path="campaigns" element={<CampaignsPage />} />
+            <Route path="prospects" element={<ProspectsPage />} />
+            <Route path="meetings" element={<MeetingsPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="ai-sdr-settings" element={<AISDRSettingsPage />} />
+            <Route path="integrations" element={<IntegrationsPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+          
+          {/* Admin - Protected */}
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<AdminDashboard />} />
+          </Route>
+        </Routes>
+        <Toaster />
+      </AuthProvider>
     </Router>
   );
 }

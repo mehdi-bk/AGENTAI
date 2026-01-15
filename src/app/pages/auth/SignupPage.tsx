@@ -5,26 +5,52 @@ import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { Checkbox } from '@/app/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
-import { Brain, Eye, EyeOff, Check } from 'lucide-react';
+import { Brain, Loader2, Mail, User, Building, Check } from 'lucide-react';
+import { signUpWithMetadata } from '@/services/authService';
+import { toast } from 'sonner';
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
-  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    company: '',
+    companySize: '',
+    industry: '',
+  });
   
-  const getPasswordStrength = (pass: string) => {
-    if (pass.length === 0) return { strength: 0, label: '' };
-    if (pass.length < 6) return { strength: 25, label: 'Weak' };
-    if (pass.length < 10) return { strength: 50, label: 'Fair' };
-    if (pass.length < 14) return { strength: 75, label: 'Good' };
-    return { strength: 100, label: 'Strong' };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      // Stocke le nom et l'entreprise pour l'utiliser en mode dev après le bypass
+      localStorage.setItem('signup_full_name', formData.fullName);
+      localStorage.setItem('signup_company', formData.company);
+      
+      const result = await signUpWithMetadata({
+        email: formData.email,
+        fullName: formData.fullName,
+        company: `${formData.company} | ${formData.industry} | ${formData.companySize}`,
+      });
+      
+      if (result.success) {
+        toast.success(result.message);
+        localStorage.setItem('verification_email', formData.email);
+        navigate(`/verify-code?email=${encodeURIComponent(formData.email)}`);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error('Erreur lors de l\'inscription');
+    } finally {
+      setLoading(false);
+    }
   };
   
-  const passwordStrength = getPasswordStrength(password);
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate('/dashboard/home');
+  const updateFormData = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
   
   return (
@@ -45,79 +71,56 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="fullname">Full Name</Label>
-              <Input
-                id="fullname"
-                type="text"
-                placeholder="John Doe"
-                required
-                className="mt-1"
-              />
+              <div className="relative mt-1">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  id="fullname"
+                  type="text"
+                  placeholder="John Doe"
+                  value={formData.fullName}
+                  onChange={(e) => updateFormData('fullName', e.target.value)}
+                  required
+                  className="pl-10"
+                />
+              </div>
             </div>
             
             <div>
               <Label htmlFor="email">Work Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@company.com"
-                required
-                className="mt-1"
-              />
+              <div className="relative mt-1">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@company.com"
+                  value={formData.email}
+                  onChange={(e) => updateFormData('email', e.target.value)}
+                  required
+                  className="pl-10"
+                />
+              </div>
             </div>
             
             <div>
               <Label htmlFor="company">Company Name</Label>
-              <Input
-                id="company"
-                type="text"
-                placeholder="Your Company Inc."
-                required
-                className="mt-1"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="password">Password</Label>
               <div className="relative mt-1">
+                <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Create a strong password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="company"
+                  type="text"
+                  placeholder="Your Company Inc."
+                  value={formData.company}
+                  onChange={(e) => updateFormData('company', e.target.value)}
                   required
+                  className="pl-10"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
               </div>
-              {password && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all ${
-                          passwordStrength.strength === 100 ? 'bg-success' :
-                          passwordStrength.strength >= 75 ? 'bg-accent' :
-                          passwordStrength.strength >= 50 ? 'bg-warning' : 'bg-error'
-                        }`}
-                        style={{ width: `${passwordStrength.strength}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-gray-600">{passwordStrength.label}</span>
-                  </div>
-                </div>
-              )}
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="companySize">Company Size</Label>
-                <Select>
+                <Select value={formData.companySize} onValueChange={(value) => updateFormData('companySize', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select size" />
                   </SelectTrigger>
@@ -133,7 +136,7 @@ export default function SignupPage() {
               
               <div>
                 <Label htmlFor="industry">Industry</Label>
-                <Select>
+                <Select value={formData.industry} onValueChange={(value) => updateFormData('industry', value)}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select industry" />
                   </SelectTrigger>
@@ -158,8 +161,19 @@ export default function SignupPage() {
               </label>
             </div>
             
-            <Button type="submit" className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90">
-              Create Account
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                'Create Account'
+              )}
             </Button>
             
             <div className="relative my-6">

@@ -3,19 +3,35 @@ import { useState } from 'react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
-import { Checkbox } from '@/app/components/ui/checkbox';
-import { Brain, Eye, EyeOff } from 'lucide-react';
+import { Brain, Loader2, Mail } from 'lucide-react';
+import { sendVerificationCode } from '@/services/authService';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login - redirect to dashboard
-    navigate('/dashboard/home');
+    setLoading(true);
+    
+    try {
+      const result = await sendVerificationCode({ email });
+      
+      if (result.success) {
+        toast.success(result.message);
+        // Stocke l'email pour la page de vérification
+        localStorage.setItem('verification_email', email);
+        navigate(`/verify-code?email=${encodeURIComponent(email)}`);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error('Erreur lors de l\'envoi du code');
+    } finally {
+      setLoading(false);
+    }
   };
   
   return (
@@ -31,57 +47,42 @@ export default function LoginPage() {
           </Link>
           
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-          <p className="text-gray-600 mb-8">Sign in to your account to continue</p>
+          <p className="text-gray-600 mb-8">Enter your email to receive a verification code</p>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="mt-1"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="password">Password</Label>
               <div className="relative mt-1">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="pl-10"
+                  autoFocus
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
               </div>
+              <p className="text-xs text-gray-500 mt-2">
+                We'll send you a 6-digit verification code
+              </p>
             </div>
             
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
-                <label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
-                  Remember me
-                </label>
-              </div>
-              <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-                Forgot password?
-              </Link>
-            </div>
-            
-            <Button type="submit" className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90">
-              Sign In
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sending code...
+                </>
+              ) : (
+                'Continue with Email'
+              )}
             </Button>
             
             <div className="relative my-6">
