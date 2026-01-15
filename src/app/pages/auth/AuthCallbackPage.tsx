@@ -10,26 +10,37 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
+        console.log('🔄 Auth callback started...');
+        
         // Attendre un peu pour que Supabase termine l'auth
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log('⏳ Waiting for Supabase to complete authentication...');
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
+        console.log('✅ Checking onboarding status...');
         const { completed, needsOnboarding, user } = await checkOnboardingStatus();
 
+        console.log('📊 Callback result:', { completed, needsOnboarding, userEmail: user?.email });
+
         if (!user) {
+          console.error('❌ No user found after authentication');
           toast.error('Erreur d\'authentification');
           navigate('/login');
           return;
         }
 
+        console.log('👤 User found:', user.email);
+
         if (needsOnboarding) {
+          console.log('➡️ Redirecting to onboarding...');
           // Nouvel utilisateur ou profil incomplet -> Onboarding
           navigate('/onboarding');
         } else {
+          console.log('➡️ Redirecting to dashboard...');
           // Utilisateur existant avec profil complet -> Dashboard
           navigate('/dashboard');
         }
       } catch (error) {
-        console.error('Error in auth callback:', error);
+        console.error('❌ Error in auth callback:', error);
         toast.error('Erreur lors de la connexion');
         navigate('/login');
       }

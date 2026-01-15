@@ -81,24 +81,45 @@ export const signInWithOutlook = async () => {
  */
 export const checkOnboardingStatus = async () => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    console.log('🔍 Getting user from Supabase...');
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error) {
+      console.error('❌ Error getting user:', error);
+      return { completed: false, needsOnboarding: false, user: null };
+    }
     
     if (!user) {
-      return { completed: false, needsOnboarding: false };
+      console.log('❌ No user found');
+      return { completed: false, needsOnboarding: false, user: null };
     }
 
+    console.log('✅ User found:', user.email);
+    console.log('📋 User metadata:', user.user_metadata);
+
     const metadata = user.user_metadata || {};
+    
+    // Si onboarding_completed est explicitement true ET company existe
     const onboardingCompleted = metadata.onboarding_completed === true;
     const hasCompany = !!metadata.company;
+    
+    // Pour les nouveaux utilisateurs OAuth, ces champs n'existent pas
+    // Ils doivent passer par l'onboarding
+    const isProfileComplete = onboardingCompleted && hasCompany;
+    const needsOnboarding = !isProfileComplete;
+
+    console.log('✅ Onboarding completed:', onboardingCompleted);
+    console.log('🏢 Has company:', hasCompany);
+    console.log('📍 Needs onboarding:', needsOnboarding);
 
     return {
-      completed: onboardingCompleted && hasCompany,
-      needsOnboarding: !onboardingCompleted || !hasCompany,
+      completed: isProfileComplete,
+      needsOnboarding: needsOnboarding,
       user,
     };
   } catch (error) {
-    console.error('Error checking onboarding status:', error);
-    return { completed: false, needsOnboarding: false };
+    console.error('❌ Exception in checkOnboardingStatus:', error);
+    return { completed: false, needsOnboarding: true, user: null };
   }
 };
 
