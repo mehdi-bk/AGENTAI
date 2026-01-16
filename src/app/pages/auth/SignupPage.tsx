@@ -14,33 +14,28 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [outlookLoading, setOutlookLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    company: '',
-    companySize: '',
-    industry: '',
-  });
+  const [email, setEmail] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!agreedToTerms) {
+      toast.error('Veuillez accepter les conditions d\'utilisation');
+      return;
+    }
+    
     setLoading(true);
     
     try {
-      // Stocke le nom et l'entreprise pour l'utiliser en mode dev après le bypass
-      localStorage.setItem('signup_full_name', formData.fullName);
-      localStorage.setItem('signup_company', formData.company);
-      
       const result = await signUpWithMetadata({
-        email: formData.email,
-        fullName: formData.fullName,
-        company: `${formData.company} | ${formData.industry} | ${formData.companySize}`,
+        email: email,
       });
       
       if (result.success) {
         toast.success(result.message);
-        localStorage.setItem('verification_email', formData.email);
-        navigate(`/verify-code?email=${encodeURIComponent(formData.email)}`);
+        localStorage.setItem('verification_email', email);
+        navigate(`/verify-code?email=${encodeURIComponent(email)}`);
       } else {
         toast.error(result.message);
       }
@@ -49,10 +44,6 @@ export default function SignupPage() {
     } finally {
       setLoading(false);
     }
-  };
-  
-  const updateFormData = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
   };
   
   const handleGoogleSignUp = async () => {
@@ -101,125 +92,10 @@ export default function SignupPage() {
           </Link>
           
           <h1 className="text-3xl font-bold mb-2">Create your account</h1>
-          <p className="text-gray-600 mb-8">Start your 14-day free trial. No credit card required.</p>
+          <p className="text-gray-600 mb-8">Choose your preferred sign-up method</p>
           
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="fullname">Full Name</Label>
-              <div className="relative mt-1">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  id="fullname"
-                  type="text"
-                  placeholder="John Doe"
-                  value={formData.fullName}
-                  onChange={(e) => updateFormData('fullName', e.target.value)}
-                  required
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="email">Work Email</Label>
-              <div className="relative mt-1">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@company.com"
-                  value={formData.email}
-                  onChange={(e) => updateFormData('email', e.target.value)}
-                  required
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="company">Company Name</Label>
-              <div className="relative mt-1">
-                <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  id="company"
-                  type="text"
-                  placeholder="Your Company Inc."
-                  value={formData.company}
-                  onChange={(e) => updateFormData('company', e.target.value)}
-                  required
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="companySize">Company Size</Label>
-                <Select value={formData.companySize} onValueChange={(value) => updateFormData('companySize', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1-10">1-10</SelectItem>
-                    <SelectItem value="11-50">11-50</SelectItem>
-                    <SelectItem value="51-200">51-200</SelectItem>
-                    <SelectItem value="201-500">201-500</SelectItem>
-                    <SelectItem value="500+">500+</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="industry">Industry</Label>
-                <Select value={formData.industry} onValueChange={(value) => updateFormData('industry', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select industry" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="saas">SaaS</SelectItem>
-                    <SelectItem value="ecommerce">E-commerce</SelectItem>
-                    <SelectItem value="consulting">Consulting</SelectItem>
-                    <SelectItem value="agency">Agency</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-2 pt-2">
-              <Checkbox id="terms" required />
-              <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
-                I agree to the{' '}
-                <a href="#" className="text-primary hover:underline">Terms of Service</a>
-                {' '}and{' '}
-                <a href="#" className="text-primary hover:underline">Privacy Policy</a>
-              </label>
-            </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Sending code...
-                </>
-              ) : (
-                'Create Account'
-              )}
-            </Button>
-            
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">or</span>
-              </div>
-            </div>
-            
+          {/* Boutons OAuth en premier */}
+          <div className="space-y-3 mb-6">
             <Button 
               type="button" 
               variant="outline" 
@@ -264,6 +140,67 @@ export default function SignupPage() {
                   </svg>
                   Sign up with Outlook
                 </>
+              )}
+            </Button>
+          </div>
+          
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">or sign up with email</span>
+            </div>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="email">Work Email</Label>
+              <div className="relative mt-1">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="pl-10"
+                  autoFocus
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                We'll send you a verification code
+              </p>
+            </div>
+            
+            <div className="flex items-start space-x-2 pt-2">
+              <Checkbox 
+                id="terms" 
+                checked={agreedToTerms}
+                onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                required 
+              />
+              <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
+                I agree to the{' '}
+                <a href="#" className="text-primary hover:underline">Terms of Service</a>
+                {' '}and{' '}
+                <a href="#" className="text-primary hover:underline">Privacy Policy</a>
+              </label>
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sending code...
+                </>
+              ) : (
+                'Continue with Email'
               )}
             </Button>
           </form>

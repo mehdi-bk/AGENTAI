@@ -4,7 +4,7 @@ import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/app/components/ui/card';
 import { Alert, AlertDescription } from '@/app/components/ui/alert';
-import { verifyOTPCode } from '@/services/authService';
+import { verifyOTPCode, checkOnboardingStatus } from '@/services/authService';
 import { Mail, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
@@ -40,9 +40,22 @@ export default function VerifyCodePage() {
       const result = await verifyOTPCode({ email, token: code });
       
       if (result.success) {
-        toast.success(result.message);
+        console.log('✅ Email verification successful');
         localStorage.removeItem('verification_email');
-        navigate('/dashboard');
+        
+        // Vérifier si l'utilisateur a complété l'onboarding
+        console.log('🔍 Checking onboarding status...');
+        const { needsOnboarding } = await checkOnboardingStatus();
+        
+        if (needsOnboarding) {
+          console.log('➡️ Redirecting to onboarding...');
+          toast.success('Email vérifié ! Complétez votre profil.');
+          navigate('/onboarding');
+        } else {
+          console.log('➡️ Redirecting to dashboard...');
+          toast.success('Connexion réussie !');
+          navigate('/dashboard');
+        }
       } else {
         toast.error(result.message);
       }
