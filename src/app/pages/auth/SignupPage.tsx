@@ -91,8 +91,8 @@ export default function SignupPage() {
             <span className="text-xl font-bold">AI SDR</span>
           </Link>
           
-          <h1 className="text-3xl font-bold mb-2">Create your account</h1>
-          <p className="text-gray-600 mb-8">Choose your preferred sign-up method</p>
+          <h1 className="text-3xl font-bold mb-2">Créer votre compte</h1>
+          <p className="text-gray-600 mb-8">Choisissez votre méthode d'inscription préférée</p>
           
           {/* Boutons OAuth en premier */}
           <div className="space-y-3 mb-6">
@@ -116,7 +116,7 @@ export default function SignupPage() {
                     <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                     <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                   </svg>
-                  Sign up with Google
+                  S'inscrire avec Google
                 </>
               )}
             </Button>
@@ -138,7 +138,7 @@ export default function SignupPage() {
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M24 7.387v9.226a3.387 3.387 0 01-3.387 3.387h-6.226V3h6.226A3.387 3.387 0 0124 6.387v1zM13.355 3v17H3.387A3.387 3.387 0 010 16.613V7.387A3.387 3.387 0 013.387 4h9.968v-1zm-2.258 8.516c0-1.161-.968-2.097-2.161-2.097-1.194 0-2.162.936-2.162 2.097 0 1.161.968 2.097 2.162 2.097 1.193 0 2.161-.936 2.161-2.097z"/>
                   </svg>
-                  Sign up with Outlook
+                  S'inscrire avec Outlook
                 </>
               )}
             </Button>
@@ -149,19 +149,19 @@ export default function SignupPage() {
               <div className="w-full border-t border-gray-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">or sign up with email</span>
+              <span className="px-2 bg-white text-gray-500">ou s'inscrire avec email</span>
             </div>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="email">Work Email</Label>
+              <Label htmlFor="email">Email professionnel</Label>
               <div className="relative mt-1">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@company.com"
+                  placeholder="vous@entreprise.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -170,7 +170,7 @@ export default function SignupPage() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                We'll send you a verification code
+                Nous vous enverrons un code de vérification
               </p>
             </div>
             
@@ -182,10 +182,10 @@ export default function SignupPage() {
                 required 
               />
               <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
-                I agree to the{' '}
-                <a href="#" className="text-primary hover:underline">Terms of Service</a>
-                {' '}and{' '}
-                <a href="#" className="text-primary hover:underline">Privacy Policy</a>
+                J'accepte les{' '}
+                <a href="#" className="text-primary hover:underline">Conditions d'utilisation</a>
+                {' '}et la{' '}
+                <a href="#" className="text-primary hover:underline">Politique de confidentialité</a>
               </label>
             </div>
             
@@ -197,18 +197,18 @@ export default function SignupPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Sending code...
+                  Envoi du code...
                 </>
               ) : (
-                'Continue with Email'
+                'Continuer avec Email'
               )}
             </Button>
           </form>
           
           <p className="text-center text-sm text-gray-600 mt-8">
-            Already have an account?{' '}
+            Vous avez déjà un compte?{' '}
             <Link to="/login" className="text-primary font-medium hover:underline">
-              Sign in
+              Se connecter
             </Link>
           </p>
         </div>
@@ -227,8 +227,8 @@ export default function SignupPage() {
                 <Check className="w-5 h-5" />
               </div>
               <div>
-                <p className="font-semibold mb-1">14-day free trial</p>
-                <p className="text-sm text-white/80">No credit card required. Cancel anytime.</p>
+                <p className="font-semibold mb-1">Essai gratuit de 14 jours</p>
+                <p className="text-sm text-white/80">Aucune carte bancaire requise. Annulation à tout moment.</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -236,8 +236,8 @@ export default function SignupPage() {
                 <Check className="w-5 h-5" />
               </div>
               <div>
-                <p className="font-semibold mb-1">AI-powered personalization</p>
-                <p className="text-sm text-white/80">Every message is researched and customized.</p>
+                <p className="font-semibold mb-1">Personnalisation par IA</p>
+                <p className="text-sm text-white/80">Chaque message est recherché et personnalisé.</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -245,8 +245,8 @@ export default function SignupPage() {
                 <Check className="w-5 h-5" />
               </div>
               <div>
-                <p className="font-semibold mb-1">Instant setup</p>
-                <p className="text-sm text-white/80">Start sending campaigns in minutes.</p>
+                <p className="font-semibold mb-1">Configuration instantanée</p>
+                <p className="text-sm text-white/80">Commencez à envoyer des campagnes en quelques minutes.</p>
               </div>
             </div>
           </div>

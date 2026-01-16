@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
           
           {!submitted ? (
             <>
-              <h1 className="text-2xl font-bold mb-2">Forgot your password?</h1>
+              <h1 className="text-2xl font-bold mb-2">Mot de passe oublié ?</h1>
               <p className="text-gray-600 mb-8">No worries, we'll send you reset instructions.</p>
               
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
           
           <Link to="/login" className="flex items-center justify-center text-sm text-gray-600 hover:text-primary mt-8 group">
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-            Back to login
+            Retour à la connexion
           </Link>
         </div>
       </div>

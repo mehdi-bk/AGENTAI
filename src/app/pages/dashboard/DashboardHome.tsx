@@ -7,24 +7,24 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 export default function DashboardHome() {
   const stats = [
-    { label: 'Active Campaigns', value: '8', change: '+2 from last week', trending: true, icon: Rocket },
-    { label: 'Meetings Booked', value: '23', change: '+43% this month', trending: true, icon: Calendar },
-    { label: 'Reply Rate', value: '18.5%', change: '+2.3% increase', trending: true, icon: Mail },
-    { label: 'AI SDRs Running', value: '3/5', change: '60% capacity used', trending: false, icon: Bot },
+    { label: 'Campagnes actives', value: '8', change: '+2 depuis la semaine dernière', trending: true, icon: Rocket },
+    { label: 'Rendez-vous réservés', value: '23', change: '+43% ce mois-ci', trending: true, icon: Calendar },
+    { label: 'Taux de réponse', value: '18.5%', change: '+2.3% d\'augmentation', trending: true, icon: Mail },
+    { label: 'IA SDR actifs', value: '3/5', change: '60% de capacité utilisée', trending: false, icon: Bot },
   ];
   
   const activities = [
-    { time: '2 hours ago', action: 'AI SDR "Sales-Hunter" sent 45 emails', type: 'success' },
-    { time: '3 hours ago', action: 'Meeting booked with John at Acme Corp', type: 'success' },
-    { time: '5 hours ago', action: 'Campaign "SaaS Outreach Q1" completed research phase', type: 'info' },
-    { time: '1 day ago', action: 'New prospect added to "Enterprise Pipeline"', type: 'info' },
-    { time: '1 day ago', action: '3 positive replies received', type: 'success' },
+    { time: 'Il y a 2 heures', action: 'IA SDR "Sales-Hunter" a envoyé 45 emails', type: 'success' },
+    { time: 'Il y a 3 heures', action: 'Rendez-vous réservé avec John chez Acme Corp', type: 'success' },
+    { time: 'Il y a 5 heures', action: 'Campagne "SaaS Outreach Q1" phase de recherche terminée', type: 'info' },
+    { time: 'Il y a 1 jour', action: 'Nouveau prospect ajouté à "Enterprise Pipeline"', type: 'info' },
+    { time: 'Il y a 1 jour', action: '3 réponses positives reçues', type: 'success' },
   ];
   
   const activeCampaigns = [
-    { name: 'SaaS Outreach Q1', progress: 65, status: 'active', sdr: 'Sales-Hunter', sent: 450, replies: 83 },
-    { name: 'Enterprise Pipeline', progress: 42, status: 'active', sdr: 'Lead-Gen-Pro', sent: 320, replies: 61 },
-    { name: 'Y Combinator Batch', progress: 88, status: 'active', sdr: 'Startup-Ninja', sent: 580, replies: 112 },
+    { name: 'Prospection SaaS T1', progress: 65, status: 'active', sdr: 'Sales-Hunter', sent: 450, replies: 83 },
+    { name: 'Pipeline Entreprises', progress: 42, status: 'active', sdr: 'Lead-Gen-Pro', sent: 320, replies: 61 },
+    { name: 'Batch Y Combinator', progress: 88, status: 'active', sdr: 'Startup-Ninja', sent: 580, replies: 112 },
   ];
   
   const chartData = [
@@ -41,8 +41,8 @@ export default function DashboardHome() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-gray-600">Welcome back! Here's what's happening with your campaigns.</p>
+        <h1 className="text-3xl font-bold mb-2">Tableau de bord</h1>
+        <p className="text-gray-600">Bienvenue ! Voici ce qui se passe avec vos campagnes.</p>
       </div>
       
       {/* Stats Grid */}
@@ -98,10 +98,10 @@ export default function DashboardHome() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Active Campaigns</CardTitle>
+              <CardTitle>Campagnes actives</CardTitle>
               <Button size="sm" variant="ghost" asChild>
                 <a href="/dashboard/campaigns">
-                  View All <ArrowRight className="w-4 h-4 ml-1" />
+                  Voir tout <ArrowRight className="w-4 h-4 ml-1" />
                 </a>
               </Button>
             </div>
@@ -140,7 +140,7 @@ export default function DashboardHome() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Meetings Booked Over Time</CardTitle>
+            <CardTitle>Rendez-vous réservés au fil du temps</CardTitle>
             <div className="flex gap-2">
               <Button variant="outline" size="sm">Daily</Button>
               <Button variant="outline" size="sm">Weekly</Button>

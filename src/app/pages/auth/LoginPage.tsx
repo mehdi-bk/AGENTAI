@@ -105,8 +105,8 @@ export default function LoginPage() {
             <span className="text-xl font-bold">AI SDR</span>
           </Link>
           
-          <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-          <p className="text-gray-600 mb-4">Enter your email to receive a verification code</p>
+          <h1 className="text-3xl font-bold mb-2">Bienvenue</h1>
+          <p className="text-gray-600 mb-4">Entrez votre email pour recevoir un code de vérification</p>
           
           {/* Bouton pour nettoyer les sessions */}
           <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -133,7 +133,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="vous@exemple.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -142,7 +142,7 @@ export default function LoginPage() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                We'll send you a 6-digit verification code
+                Nous vous enverrons un code de vérification à 6 chiffres
               </p>
             </div>
             
@@ -167,10 +167,10 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Sending code...
+                  Envoi du code...
                 </>
               ) : (
-                'Continue with Email'
+                'Continuer avec Email'
               )}
             </Button>
             
@@ -203,7 +203,7 @@ export default function LoginPage() {
                     <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                     <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                   </svg>
-                  Continue with Google
+                  Continuer avec Google
                 </>
               )}
             </Button>
@@ -225,16 +225,16 @@ export default function LoginPage() {
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M24 7.387v9.226a3.387 3.387 0 01-3.387 3.387h-6.226V3h6.226A3.387 3.387 0 0124 6.387v1zM13.355 3v17H3.387A3.387 3.387 0 010 16.613V7.387A3.387 3.387 0 013.387 4h9.968v-1zm-2.258 8.516c0-1.161-.968-2.097-2.161-2.097-1.194 0-2.162.936-2.162 2.097 0 1.161.968 2.097 2.162 2.097 1.193 0 2.161-.936 2.161-2.097z"/>
                   </svg>
-                  Continue with Outlook
+                  Continuer avec Outlook
                 </>
               )}
             </Button>
           </form>
           
           <p className="text-center text-sm text-gray-600 mt-8">
-            Don't have an account?{' '}
+            Pas encore de compte?{' '}
             <Link to="/signup" className="text-primary font-medium hover:underline">
-              Sign up
+              S'inscrire
             </Link>
           </p>
         </div>
@@ -243,9 +243,9 @@ export default function LoginPage() {
       {/* Right Side - Gradient with Value Prop */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-secondary to-accent items-center justify-center p-12">
         <div className="max-w-lg text-white">
-          <h2 className="text-4xl font-bold mb-6">Turn Prospects Into Meetings</h2>
+          <h2 className="text-4xl font-bold mb-6">Transformez vos prospects en rendez-vous</h2>
           <p className="text-xl mb-8 text-white/90">
-            Our AI researches and personalizes every outreach, booking meetings on autopilot.
+            Notre IA recherche et personnalise chaque approche, en réservant des rendez-vous automatiquement.
           </p>
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
             <p className="italic mb-4">"The best AI SDR tool we've ever used. Reply rates increased by 300%."</p>
