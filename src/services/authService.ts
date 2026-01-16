@@ -140,8 +140,18 @@ export const checkOnboardingStatus = async () => {
     console.log('✅ User found:', user.email);
     console.log('📋 User metadata:', user.user_metadata);
     console.log('🆔 User ID:', user.id);
+    console.log('📅 User created at:', user.created_at);
 
     const metadata = user.user_metadata || {};
+    
+    // Vérifier si c'est un compte NOUVELLEMENT créé (moins de 5 minutes)
+    const userCreatedAt = new Date(user.created_at);
+    const now = new Date();
+    const minutesSinceCreation = (now.getTime() - userCreatedAt.getTime()) / (1000 * 60);
+    const isNewlyCreated = minutesSinceCreation < 5;
+    
+    console.log('⏱️ Account age (minutes):', minutesSinceCreation.toFixed(2));
+    console.log('🆕 Is newly created (< 5 min):', isNewlyCreated);
     
     // IMPORTANT : Pour les utilisateurs OAuth (Google, Azure, etc.)
     // on doit TOUJOURS vérifier que l'onboarding est explicitement complété
@@ -150,16 +160,22 @@ export const checkOnboardingStatus = async () => {
     const onboardingCompleted = metadata.onboarding_completed === true;
     const hasCompany = !!metadata.company;
     
+    // Si le compte a été créé il y a moins de 5 minutes ET n'a pas d'onboarding_completed_at
+    // alors c'est FORCÉMENT un nouveau compte qui doit passer par l'onboarding
+    const hasOnboardingTimestamp = !!metadata.onboarding_completed_at;
+    
     // Un profil est complet SEULEMENT si :
     // 1. onboarding_completed est explicitement true
     // 2. ET company existe
-    const isProfileComplete = onboardingCompleted && hasCompany;
+    // 3. ET ce n'est PAS un compte nouvellement créé SANS timestamp d'onboarding
+    const isProfileComplete = onboardingCompleted && hasCompany && (hasOnboardingTimestamp || !isNewlyCreated);
     
     // Si le profil n'est pas complet, l'utilisateur doit passer par l'onboarding
     const needsOnboarding = !isProfileComplete;
 
     console.log('✅ Onboarding completed:', onboardingCompleted);
     console.log('🏢 Has company:', hasCompany);
+    console.log('⏰ Has onboarding timestamp:', hasOnboardingTimestamp);
     console.log('📝 Is profile complete:', isProfileComplete);
     console.log('📍 Needs onboarding:', needsOnboarding);
 

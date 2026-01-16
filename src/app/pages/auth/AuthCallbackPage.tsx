@@ -11,6 +11,7 @@ export default function AuthCallbackPage() {
     const handleCallback = async () => {
       try {
         console.log('🔄 Auth callback started...');
+        console.log('🌐 Current URL:', window.location.href);
         
         // Attendre que Supabase termine complètement l'authentification OAuth
         console.log('⏳ Waiting for Supabase to complete authentication...');
@@ -24,7 +25,8 @@ export default function AuthCallbackPage() {
           needsOnboarding, 
           userEmail: user?.email,
           userMetadata: user?.user_metadata,
-          userId: user?.id 
+          userId: user?.id,
+          userCreatedAt: user?.created_at
         });
 
         if (!user) {
@@ -37,6 +39,14 @@ export default function AuthCallbackPage() {
         console.log('👤 User authenticated:', user.email);
         console.log('🆔 User ID:', user.id);
         console.log('🔑 Auth provider:', user.app_metadata?.provider);
+        console.log('📅 Account created:', user.created_at);
+        
+        // ALERTE si un compte spécifique est détecté (pour debug)
+        if (user.email === 'vanessianroman@gmail.com') {
+          console.warn('⚠️ ⚠️ ⚠️ WARNING: Connected with vanessianroman@gmail.com');
+          console.warn('⚠️ This might not be the intended account!');
+          toast.error(`⚠️ Connecté avec ${user.email}. Est-ce le bon compte ?`, { duration: 5000 });
+        }
 
         // Afficher un message de bienvenue avec l'email
         if (needsOnboarding) {
