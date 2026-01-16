@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from '@/app/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/app/components/ProtectedRoute';
+import OnboardingRoute from '@/app/components/OnboardingRoute';
 
 // Marketing
 import LandingPage from '@/app/pages/LandingPage';
@@ -41,7 +42,11 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify-code" element={<VerifyCodePage />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/onboarding" element={
+            <OnboardingRoute>
+              <OnboardingPage />
+            </OnboardingRoute>
+          } />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           

@@ -12,37 +12,44 @@ export default function AuthCallbackPage() {
       try {
         console.log('🔄 Auth callback started...');
         
-        // Attendre un peu pour que Supabase termine l'auth
+        // Attendre que Supabase termine complètement l'authentification OAuth
         console.log('⏳ Waiting for Supabase to complete authentication...');
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-        console.log('✅ Checking onboarding status...');
+        console.log('🔍 Checking onboarding status...');
         const { completed, needsOnboarding, user } = await checkOnboardingStatus();
 
-        console.log('📊 Callback result:', { completed, needsOnboarding, userEmail: user?.email });
+        console.log('📊 Callback result:', { 
+          completed, 
+          needsOnboarding, 
+          userEmail: user?.email,
+          userMetadata: user?.user_metadata 
+        });
 
         if (!user) {
           console.error('❌ No user found after authentication');
-          toast.error('Erreur d\'authentification');
-          navigate('/login');
+          toast.error('Erreur d\'authentification. Veuillez réessayer.');
+          navigate('/login', { replace: true });
           return;
         }
 
-        console.log('👤 User found:', user.email);
+        console.log('👤 User authenticated:', user.email);
 
         if (needsOnboarding) {
-          console.log('➡️ Redirecting to onboarding...');
-          // Nouvel utilisateur ou profil incomplet -> Onboarding
-          navigate('/onboarding');
+          console.log('➡️ New user or incomplete profile - redirecting to onboarding...');
+          toast.info('Bienvenue ! Veuillez compléter votre profil.');
+          // Force navigation to onboarding
+          navigate('/onboarding', { replace: true });
         } else {
-          console.log('➡️ Redirecting to dashboard...');
-          // Utilisateur existant avec profil complet -> Dashboard
-          navigate('/dashboard');
+          console.log('➡️ Existing user with complete profile - redirecting to dashboard...');
+          toast.success(`Bienvenue ${user.email} !`);
+          // User has completed onboarding
+          navigate('/dashboard', { replace: true });
         }
       } catch (error) {
         console.error('❌ Error in auth callback:', error);
-        toast.error('Erreur lors de la connexion');
-        navigate('/login');
+        toast.error('Erreur lors de la connexion. Veuillez réessayer.');
+        navigate('/login', { replace: true });
       }
     };
 

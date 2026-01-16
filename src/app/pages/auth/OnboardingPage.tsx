@@ -30,49 +30,58 @@ export default function OnboardingPage() {
     }
 
     setLoading(true);
-    console.log('Starting onboarding submission...', formData);
+    console.log('🚀 Starting onboarding submission...', formData);
 
     try {
       // Récupérer l'utilisateur actuel
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
-      console.log('Current user:', user);
+      console.log('👤 Current user:', user?.email);
       
       if (userError) {
-        console.error('Error getting user:', userError);
+        console.error('❌ Error getting user:', userError);
         throw userError;
       }
       
       if (!user) {
-        toast.error('Session expirée');
+        console.error('❌ No user found');
+        toast.error('Session expirée. Veuillez vous reconnecter.');
         setLoading(false);
         navigate('/login');
         return;
       }
 
-      console.log('Updating user metadata...');
+      console.log('💾 Updating user metadata...');
       
-      // Mettre à jour les métadonnées (ne pas attendre la confirmation)
-      supabase.auth.updateUser({
+      // Mettre à jour les métadonnées et ATTENDRE la confirmation
+      const { data: updateData, error: updateError } = await supabase.auth.updateUser({
         data: {
           company: formData.company,
           company_size: formData.companySize,
           industry: formData.industry,
           onboarding_completed: true,
+          onboarding_completed_at: new Date().toISOString(),
         }
-      }).then(({ error }) => {
-        if (error) console.error('Error updating user:', error);
-        else console.log('User metadata updated successfully');
       });
 
-      // Rediriger immédiatement
-      console.log('Redirecting to dashboard...');
+      if (updateError) {
+        console.error('❌ Error updating user metadata:', updateError);
+        throw updateError;
+      }
+
+      console.log('✅ User metadata updated successfully:', updateData?.user?.user_metadata);
+      
+      // Petite pause pour s'assurer que les données sont bien synchronisées
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Rediriger vers le dashboard
+      console.log('➡️ Redirecting to dashboard...');
       toast.success('Profil complété avec succès !');
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
       
     } catch (error: any) {
-      console.error('Error in onboarding:', error);
-      toast.error(error.message || 'Erreur lors de la mise à jour');
+      console.error('❌ Error in onboarding:', error);
+      toast.error(error.message || 'Erreur lors de la mise à jour du profil');
       setLoading(false);
     }
   };

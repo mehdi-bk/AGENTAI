@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Brain, Home, Rocket, Users, Calendar, BarChart3, Bot, Plug, Settings, Bell, ChevronLeft, Menu, Search, LogOut, AlertCircle, CreditCard } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
@@ -14,9 +14,11 @@ import {
 import { Avatar, AvatarFallback } from '@/app/components/ui/avatar';
 import { Alert, AlertDescription } from '@/app/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
+import { checkOnboardingStatus } from '@/services/authService';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
@@ -24,6 +26,52 @@ export default function DashboardLayout() {
   const isDev = import.meta.env.VITE_DEV_MODE === 'true';
   const devBypass = isDev && localStorage.getItem('dev_bypass_auth') === 'true';
   const devEmail = localStorage.getItem('dev_user_email') || 'dev@example.com';
+  
+  // Vérifier que l'utilisateur a complété l'onboarding
+  useEffect(() => {
+    const verifyOnboarding = async () => {
+      // Ne vérifier que si pas en mode dev bypass
+      if (devBypass) {
+        setCheckingOnboarding(false);
+        return;
+      }
+
+      if (!user) {
+        setCheckingOnboarding(false);
+        return;
+      }
+
+      try {
+        console.log('🔍 DashboardLayout: Checking onboarding status');
+        const { needsOnboarding } = await checkOnboardingStatus();
+        
+        if (needsOnboarding) {
+          console.log('⚠️ DashboardLayout: User needs onboarding, redirecting...');
+          navigate('/onboarding', { replace: true });
+        } else {
+          console.log('✅ DashboardLayout: Onboarding completed');
+          setCheckingOnboarding(false);
+        }
+      } catch (error) {
+        console.error('❌ DashboardLayout: Error checking onboarding', error);
+        setCheckingOnboarding(false);
+      }
+    };
+
+    verifyOnboarding();
+  }, [user, devBypass, navigate]);
+
+  // Afficher un loader pendant la vérification
+  if (checkingOnboarding) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
   
   // Récupère le nom de l'utilisateur
   const getUserName = () => {

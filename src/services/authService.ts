@@ -96,20 +96,28 @@ export const checkOnboardingStatus = async () => {
 
     console.log('✅ User found:', user.email);
     console.log('📋 User metadata:', user.user_metadata);
+    console.log('🆔 User ID:', user.id);
 
     const metadata = user.user_metadata || {};
     
-    // Si onboarding_completed est explicitement true ET company existe
+    // IMPORTANT : Pour les utilisateurs OAuth (Google, Azure, etc.)
+    // on doit TOUJOURS vérifier que l'onboarding est explicitement complété
+    // Sinon, c'est un nouvel utilisateur qui doit passer par l'onboarding
+    
     const onboardingCompleted = metadata.onboarding_completed === true;
     const hasCompany = !!metadata.company;
     
-    // Pour les nouveaux utilisateurs OAuth, ces champs n'existent pas
-    // Ils doivent passer par l'onboarding
+    // Un profil est complet SEULEMENT si :
+    // 1. onboarding_completed est explicitement true
+    // 2. ET company existe
     const isProfileComplete = onboardingCompleted && hasCompany;
+    
+    // Si le profil n'est pas complet, l'utilisateur doit passer par l'onboarding
     const needsOnboarding = !isProfileComplete;
 
     console.log('✅ Onboarding completed:', onboardingCompleted);
     console.log('🏢 Has company:', hasCompany);
+    console.log('📝 Is profile complete:', isProfileComplete);
     console.log('📍 Needs onboarding:', needsOnboarding);
 
     return {
