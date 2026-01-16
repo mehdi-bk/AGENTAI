@@ -20,25 +20,35 @@ export interface SignUpParams {
  */
 export const signInWithGoogle = async () => {
   try {
+    console.log('🔐 Starting Google OAuth sign in...');
+    
+    // Nettoyer toute session existante AVANT de démarrer OAuth
+    console.log('🧹 Cleaning existing session before OAuth...');
+    await supabase.auth.signOut({ scope: 'local' });
+    
+    // Petit délai pour s'assurer que la session est bien nettoyée
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${import.meta.env.VITE_APP_URL}/auth/callback`,
         queryParams: {
           access_type: 'offline',
-          prompt: 'consent',
+          prompt: 'select_account', // Force la sélection du compte Google
         },
       },
     });
 
     if (error) throw error;
 
+    console.log('✅ Google OAuth initiated successfully');
     return {
       success: true,
       data,
     };
   } catch (error: any) {
-    console.error('Error signing in with Google:', error);
+    console.error('❌ Error signing in with Google:', error);
     return {
       success: false,
       message: error.message || 'Erreur lors de la connexion avec Google',
@@ -52,22 +62,35 @@ export const signInWithGoogle = async () => {
  */
 export const signInWithOutlook = async () => {
   try {
+    console.log('🔐 Starting Outlook OAuth sign in...');
+    
+    // Nettoyer toute session existante AVANT de démarrer OAuth
+    console.log('🧹 Cleaning existing session before OAuth...');
+    await supabase.auth.signOut({ scope: 'local' });
+    
+    // Petit délai pour s'assurer que la session est bien nettoyée
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
         redirectTo: `${import.meta.env.VITE_APP_URL}/auth/callback`,
         scopes: 'email openid profile offline_access',
+        queryParams: {
+          prompt: 'select_account', // Force la sélection du compte Microsoft
+        },
       },
     });
 
     if (error) throw error;
 
+    console.log('✅ Outlook OAuth initiated successfully');
     return {
       success: true,
       data,
     };
   } catch (error: any) {
-    console.error('Error signing in with Outlook:', error);
+    console.error('❌ Error signing in with Outlook:', error);
     return {
       success: false,
       message: error.message || 'Erreur lors de la connexion avec Outlook',

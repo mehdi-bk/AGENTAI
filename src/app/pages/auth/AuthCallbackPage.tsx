@@ -23,7 +23,8 @@ export default function AuthCallbackPage() {
           completed, 
           needsOnboarding, 
           userEmail: user?.email,
-          userMetadata: user?.user_metadata 
+          userMetadata: user?.user_metadata,
+          userId: user?.id 
         });
 
         if (!user) {
@@ -34,10 +35,13 @@ export default function AuthCallbackPage() {
         }
 
         console.log('👤 User authenticated:', user.email);
+        console.log('🆔 User ID:', user.id);
+        console.log('🔑 Auth provider:', user.app_metadata?.provider);
 
+        // Afficher un message de bienvenue avec l'email
         if (needsOnboarding) {
           console.log('➡️ New user or incomplete profile - redirecting to onboarding...');
-          toast.info('Bienvenue ! Veuillez compléter votre profil.');
+          toast.info(`Bienvenue ${user.email} ! Veuillez compléter votre profil.`);
           // Force navigation to onboarding
           navigate('/onboarding', { replace: true });
         } else {
