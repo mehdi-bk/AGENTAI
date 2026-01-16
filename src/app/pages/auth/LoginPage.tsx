@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
-import { Brain, Loader2, Mail } from 'lucide-react';
+import { Brain, Loader2, Mail, Trash2 } from 'lucide-react';
 import { sendVerificationCode, signInWithGoogle, signInWithOutlook } from '@/services/authService';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -14,6 +15,27 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [outlookLoading, setOutlookLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  
+  const handleClearAllSessions = async () => {
+    try {
+      console.log('🗑️ Clearing all sessions manually...');
+      
+      // Déconnexion Supabase
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Nettoyer tout le localStorage
+      localStorage.clear();
+      
+      // Nettoyer sessionStorage
+      sessionStorage.clear();
+      
+      toast.success('Toutes les sessions ont été nettoyées');
+      console.log('✅ All sessions cleared');
+    } catch (error) {
+      console.error('❌ Error clearing sessions:', error);
+      toast.error('Erreur lors du nettoyage');
+    }
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +106,24 @@ export default function LoginPage() {
           </Link>
           
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-          <p className="text-gray-600 mb-8">Enter your email to receive a verification code</p>
+          <p className="text-gray-600 mb-4">Enter your email to receive a verification code</p>
+          
+          {/* Bouton pour nettoyer les sessions */}
+          <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800 mb-2">
+              🔄 Problème de connexion avec le mauvais compte?
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleClearAllSessions}
+              className="w-full text-yellow-700 border-yellow-300 hover:bg-yellow-100"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Nettoyer toutes les sessions
+            </Button>
+          </div>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
