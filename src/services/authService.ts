@@ -144,40 +144,33 @@ export const checkOnboardingStatus = async () => {
 
     const metadata = user.user_metadata || {};
     
-    // Vérifier si c'est un compte NOUVELLEMENT créé (moins de 5 minutes)
-    const userCreatedAt = new Date(user.created_at);
-    const now = new Date();
-    const minutesSinceCreation = (now.getTime() - userCreatedAt.getTime()) / (1000 * 60);
-    const isNewlyCreated = minutesSinceCreation < 5;
-    
-    console.log('⏱️ Account age (minutes):', minutesSinceCreation.toFixed(2));
-    console.log('🆕 Is newly created (< 5 min):', isNewlyCreated);
-    
-    // IMPORTANT : Pour les utilisateurs OAuth (Google, Azure, etc.)
-    // on doit TOUJOURS vérifier que l'onboarding est explicitement complété
-    // Sinon, c'est un nouvel utilisateur qui doit passer par l'onboarding
+    // LOGIQUE SIMPLE : L'onboarding est complété SEULEMENT si ces 3 conditions sont remplies :
+    // 1. Le flag onboarding_completed est à true
+    // 2. Il y a une entreprise (company)
+    // 3. Il y a un timestamp de complétion (onboarding_completed_at)
     
     const onboardingCompleted = metadata.onboarding_completed === true;
     const hasCompany = !!metadata.company;
+    const hasTimestamp = !!metadata.onboarding_completed_at;
     
-    // Si le compte a été créé il y a moins de 5 minutes ET n'a pas d'onboarding_completed_at
-    // alors c'est FORCÉMENT un nouveau compte qui doit passer par l'onboarding
-    const hasOnboardingTimestamp = !!metadata.onboarding_completed_at;
-    
-    // Un profil est complet SEULEMENT si :
-    // 1. onboarding_completed est explicitement true
-    // 2. ET company existe
-    // 3. ET ce n'est PAS un compte nouvellement créé SANS timestamp d'onboarding
-    const isProfileComplete = onboardingCompleted && hasCompany && (hasOnboardingTimestamp || !isNewlyCreated);
-    
-    // Si le profil n'est pas complet, l'utilisateur doit passer par l'onboarding
+    // Si ces 3 conditions ne sont PAS toutes remplies, alors onboarding est nécessaire
+    const isProfileComplete = onboardingCompleted && hasCompany && hasTimestamp;
     const needsOnboarding = !isProfileComplete;
 
-    console.log('✅ Onboarding completed:', onboardingCompleted);
+    console.log('✅ Onboarding completed flag:', onboardingCompleted);
     console.log('🏢 Has company:', hasCompany);
-    console.log('⏰ Has onboarding timestamp:', hasOnboardingTimestamp);
+    console.log('⏰ Has completion timestamp:', hasTimestamp);
     console.log('📝 Is profile complete:', isProfileComplete);
     console.log('📍 Needs onboarding:', needsOnboarding);
+    
+    // Si needsOnboarding est TRUE, afficher pourquoi
+    if (needsOnboarding) {
+      const reasons = [];
+      if (!onboardingCompleted) reasons.push('no completed flag');
+      if (!hasCompany) reasons.push('no company');
+      if (!hasTimestamp) reasons.push('no timestamp');
+      console.log('❗ Onboarding needed because:', reasons.join(', '));
+    }
 
     return {
       completed: isProfileComplete,

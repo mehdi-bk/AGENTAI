@@ -24,7 +24,6 @@ export default function AuthCallbackPage() {
           completed, 
           needsOnboarding, 
           userEmail: user?.email,
-          userMetadata: user?.user_metadata,
           userId: user?.id,
           userCreatedAt: user?.created_at
         });
@@ -36,28 +35,20 @@ export default function AuthCallbackPage() {
           return;
         }
 
-        console.log('👤 User authenticated:', user.email);
+        console.log('✅ User authenticated:', user.email);
         console.log('🆔 User ID:', user.id);
         console.log('🔑 Auth provider:', user.app_metadata?.provider);
         console.log('📅 Account created:', user.created_at);
-        
-        // ALERTE si un compte spécifique est détecté (pour debug)
-        if (user.email === 'vanessianroman@gmail.com') {
-          console.warn('⚠️ ⚠️ ⚠️ WARNING: Connected with vanessianroman@gmail.com');
-          console.warn('⚠️ This might not be the intended account!');
-          toast.error(`⚠️ Connecté avec ${user.email}. Est-ce le bon compte ?`, { duration: 5000 });
-        }
+        console.log('📋 Needs onboarding?', needsOnboarding);
 
         // Afficher un message de bienvenue avec l'email
         if (needsOnboarding) {
-          console.log('➡️ New user or incomplete profile - redirecting to onboarding...');
-          toast.info(`Bienvenue ${user.email} ! Veuillez compléter votre profil.`);
-          // Force navigation to onboarding
+          console.log('➡️ NEW USER - redirecting to onboarding...');
+          toast.info(`Connecté avec ${user.email}. Complétez votre profil.`);
           navigate('/onboarding', { replace: true });
         } else {
-          console.log('➡️ Existing user with complete profile - redirecting to dashboard...');
+          console.log('➡️ EXISTING USER - redirecting to dashboard...');
           toast.success(`Bienvenue ${user.email} !`);
-          // User has completed onboarding
           navigate('/dashboard', { replace: true });
         }
       } catch (error) {
