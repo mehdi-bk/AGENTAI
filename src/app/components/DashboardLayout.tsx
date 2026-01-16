@@ -102,7 +102,7 @@ export default function DashboardLayout() {
       return emailName.charAt(0).toUpperCase() + emailName.slice(1);
     }
     
-    return 'User';
+    return 'Utilisateur';
   };
   
   const userName = getUserName();
@@ -114,7 +114,7 @@ export default function DashboardLayout() {
     }
     
     const metadata = user?.user_metadata || {};
-    return metadata.full_name || user?.email?.split('@')[0] || 'User';
+    return metadata.full_name || user?.email?.split('@')[0] || 'Utilisateur';
   };
   
   // Récupère les initiales de l'utilisateur
@@ -149,14 +149,14 @@ export default function DashboardLayout() {
   };
   
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard/home', icon: Home },
-    { name: 'Campaigns', href: '/dashboard/campaigns', icon: Rocket },
+    { name: 'Tableau de bord', href: '/dashboard/home', icon: Home },
+    { name: 'Campagnes', href: '/dashboard/campaigns', icon: Rocket },
     { name: 'Prospects', href: '/dashboard/prospects', icon: Users },
-    { name: 'Meetings', href: '/dashboard/meetings', icon: Calendar },
-    { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-    { name: 'AI SDR Settings', href: '/dashboard/ai-sdr-settings', icon: Bot },
-    { name: 'Integrations', href: '/dashboard/integrations', icon: Plug },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+    { name: 'Rendez-vous', href: '/dashboard/meetings', icon: Calendar },
+    { name: 'Analytique', href: '/dashboard/analytics', icon: BarChart3 },
+    { name: 'Paramètres IA SDR', href: '/dashboard/ai-sdr-settings', icon: Bot },
+    { name: 'Intégrations', href: '/dashboard/integrations', icon: Plug },
+    { name: 'Paramètres', href: '/dashboard/settings', icon: Settings },
   ];
   
   return (
