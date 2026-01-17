@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -6,17 +6,50 @@ import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/app/components/ui/dialog';
-import { Check, Calendar, Mail, Users, Slack, Video, Building2, Plus, X, Settings, ExternalLink } from 'lucide-react';
+import { Check, Calendar, Mail, Users, Slack, Video, Building2, Plus, X, Settings, ExternalLink, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { 
+  getUserIntegrations, 
+  connectGoogleCalendar, 
+  connectGmail, 
+  disconnectIntegration,
+  getTeamMembers,
+  inviteTeamMember,
+  removeTeamMember,
+  type TeamMember
+} from '@/services/integrationsService';
 
 export default function IntegrationsPage() {
-  const [teamMembers, setTeamMembers] = useState([
-    { id: 1, name: 'Marie Dubois', email: 'marie@example.com', role: 'Administrateur', status: 'active' },
-    { id: 2, name: 'Jean Martin', email: 'jean@example.com', role: 'Membre', status: 'active' },
-  ]);
-  
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [connectedIntegrations, setConnectedIntegrations] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [inviteLoading, setInviteLoading] = useState(false);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [addMemberOpen, setAddMemberOpen] = useState(false);
+  
+  // Charger les données au montage
+  useEffect(() => {
+    loadData();
+  }, []);
+  
+  const loadData = async () => {
+    setLoading(true);
+    
+    // Charger les intégrations
+    const integrationsResult = await getUserIntegrations();
+    if (integrationsResult.success && integrationsResult.data) {
+      const providers = integrationsResult.data.map((int: any) => int.provider);
+      setConnectedIntegrations(providers);
+    }
+    
+    // Charger les membres de l'équipe
+    const membersResult = await getTeamMembers();
+    if (membersResult.success && membersResult.data) {
+      setTeamMembers(membersResult.data);
+    }
+    
+    setLoading(false);
+  };
   
   const integrations = [
     { 
@@ -85,7 +118,51 @@ export default function IntegrationsPage() {
     },
   ];
   
-  const handleAddMember = () => {
+  const handleConnect = async (provider: string) => {
+    try {
+      let result;
+      
+      switch (provider) {
+        case 'Google Calendar':
+          result = await connectGoogleCalendar();
+          break;
+        case 'Gmail':
+          result = await connectGmail();
+          break;
+        default:
+          toast.error(`Intégration ${provider} en développement`);
+          return;
+      }
+      
+      if (result.success) {
+        // OAuth redirigera automatiquement
+        toast.success(`Connexion à ${provider} en cours...`);
+      } else {
+        toast.error(result.message || 'Erreur de connexion');
+      }
+    } catch (error) {
+      console.error('Erreur connexion:', error);
+      toast.error('Erreur de connexion');
+    }
+  };
+  
+  const handleDisconnect = async (provider: string) => {
+    try {
+      const result = await disconnectIntegration(provider);
+      
+      if (result.success) {
+        toast.success(`${provider} déconnecté avec succès`);
+        await loadData(); // Recharger les données
+      } else {
+        toast.error(result.message || 'Erreur de déconnexion');
+      }
+    } catch (error) {
+      console.error('Erreur déconnexion:', error);
+      toast.error('Erreur de déconnexion');
+    }
+  };
+
+  const handleAddMember = async () => {
     if (!newMemberEmail) {
       toast.error('Veuillez entrer une adresse email');
       return;
@@ -96,39 +173,45 @@ export default function IntegrationsPage() {
       return;
     }
     
-    // Vérifier si l'email existe déjà
-    const exists = teamMembers.some(member => member.email === newMemberEmail);
-    if (exists) {
-      toast.error('Ce membre fait déjà partie de l\'équipe');
-      return;
+    setInviteLoading(true);
+    
+    try {
+      const result = await inviteTeamMember(newMemberEmail, 'member');
+      
+      if (result.success) {
+        toast.success(`Invitation envoyée à ${newMemberEmail}`);
+        setNewMemberEmail('');
+        setAddMemberOpen(false);
+        await loadData(); // Recharger les membres
+      } else {
+        toast.error(result.message || 'Erreur lors de l\'invitation');
+      }
+    } catch (error) {
+      console.error('Erreur invitation:', error);
+      toast.error('Erreur lors de l\'invitation');
+    } finally {
+      setInviteLoading(false);
     }
-    
-    const newMember = {
-      id: teamMembers.length + 1,
-      name: newMemberEmail.split('@')[0],
-      email: newMemberEmail,
-      role: 'Membre',
-      status: 'pending'
-    };
-    
-    setTeamMembers([...teamMembers, newMember]);
-    setNewMemberEmail('');
-    setAddMemberOpen(false);
-    toast.success(`Invitation envoyée à ${newMemberEmail}`);
   };
   
-  const handleRemoveMember = (id: number) => {
-    setTeamMembers(teamMembers.filter(member => member.id !== id));
-    toast.success('Membre retiré de l\'équipe');
+  const handleRemoveMember = async (id: string) => {
+    try {
+      const result = await removeTeamMember(id);
+      
+      if (result.success) {
+        toast.success('Membre retiré de l\'équipe');
+        await loadData(); // Recharger les membres
+      } else {
+        toast.error(result.message || 'Erreur lors de la suppression');
+      }
+    } catch (error) {
+      console.error('Erreur suppression:', error);
+      toast.error('Erreur lors de la suppression');
+    }
   };
   
-  const handleConnect = (name: string) => {
-    toast.success(`Connexion à ${name} en cours...`);
-    // Ici vous ajouteriez la logique OAuth réelle
-  };
-  
-  const handleDisconnect = (name: string) => {
-    toast.success(`Déconnecté de ${name}`);
+  const isConnected = (providerName: string) => {
+    return connectedIntegrations.includes(providerName);
   };
   
   return (
@@ -146,14 +229,29 @@ export default function IntegrationsPage() {
         
         <TabsContent value="integrations" className="space-y-6">
           {/* Intégrations connectées */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Connecté</CardTitle>
-              <CardDescription>Services actuellement connectés à votre compte</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
-                {integrations.filter(i => i.status === 'connected').map((integration, i) => (
+          {loading ? (
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center">
+                  <div className="text-gray-500">Chargement...</div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Connecté</CardTitle>
+                  <CardDescription>Services actuellement connectés à votre compte</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {integrations.filter(i => isConnected(i.name)).length === 0 ? (
+                      <div className="col-span-2 text-center py-8 text-gray-500">
+                        Aucune intégration connectée
+                      </div>
+                    ) : (
+                      integrations.filter(i => isConnected(i.name)).map((integration, i) => (
                   <div key={i} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-3">
                       <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${integration.color} flex items-center justify-center text-white`}>
@@ -180,20 +278,21 @@ export default function IntegrationsPage() {
                       </Button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Intégrations disponibles */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Disponibles</CardTitle>
-              <CardDescription>Connectez de nouveaux services pour améliorer votre workflow</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {integrations.filter(i => i.status === 'available').map((integration, i) => (
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Intégrations disponibles */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Disponibles</CardTitle>
+                  <CardDescription>Connectez de nouveaux services pour améliorer votre workflow</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {integrations.filter(i => !isConnected(i.name) && i.status === 'available').map((integration, i) => (
                   <div key={i} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between mb-3">
                       <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${integration.color} flex items-center justify-center text-white`}>
@@ -202,27 +301,27 @@ export default function IntegrationsPage() {
                     </div>
                     <h3 className="font-semibold text-lg mb-1">{integration.name}</h3>
                     <p className="text-sm text-gray-600 mb-4">{integration.description}</p>
-                    <Button 
-                      className="w-full bg-gradient-to-r from-primary to-secondary"
-                      onClick={() => handleConnect(integration.name)}
-                    >
-                      Connecter
-                    </Button>
+                      <Button 
+                        className="w-full bg-gradient-to-r from-primary to-secondary"
+                        onClick={() => handleConnect(integration.name)}
+                      >
+                        Connecter
+                      </Button>
+                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Bientôt disponible */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Bientôt disponible</CardTitle>
-              <CardDescription>Intégrations en cours de développement</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {integrations.filter(i => i.status === 'coming-soon').map((integration, i) => (
+                </CardContent>
+              </Card>
+              
+              {/* Bientôt disponible */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Bientôt disponible</CardTitle>
+                  <CardDescription>Intégrations en cours de développement</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {integrations.filter(i => i.status === 'coming-soon').map((integration, i) => (
                   <div key={i} className="p-4 border rounded-lg opacity-75">
                     <div className="flex items-start justify-between mb-3">
                       <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${integration.color} flex items-center justify-center text-white`}>
@@ -232,14 +331,16 @@ export default function IntegrationsPage() {
                     </div>
                     <h3 className="font-semibold text-lg mb-1">{integration.name}</h3>
                     <p className="text-sm text-gray-600 mb-4">{integration.description}</p>
-                    <Button variant="outline" className="w-full" disabled>
-                      Bientôt disponible
-                    </Button>
+                      <Button variant="outline" className="w-full" disabled>
+                        Bientôt disponible
+                      </Button>
+                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </TabsContent>
         
         <TabsContent value="team" className="space-y-6">
@@ -281,8 +382,9 @@ export default function IntegrationsPage() {
                         <Button 
                           className="flex-1 bg-gradient-to-r from-primary to-secondary"
                           onClick={handleAddMember}
+                          disabled={inviteLoading}
                         >
-                          Envoyer l'invitation
+                          {inviteLoading ? 'Envoi en cours...' : 'Envoyer l\'invitation'}
                         </Button>
                         <Button 
                           variant="outline"
@@ -297,23 +399,32 @@ export default function IntegrationsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {teamMembers.map((member) => (
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-gray-500">Chargement...</div>
+                </div>
+              ) : teamMembers.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  Aucun membre dans l'équipe
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {teamMembers.map((member) => (
                   <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-semibold">
-                        {member.name[0].toUpperCase()}
+                        {member.email[0].toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-medium">{member.name}</p>
+                        <p className="font-medium">{member.email.split('@')[0]}</p>
                         <p className="text-sm text-gray-600">{member.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <Badge variant={member.status === 'active' ? 'default' : 'secondary'}>
-                        {member.status === 'active' ? 'Actif' : 'En attente'}
+                        {member.status === 'active' ? 'Actif' : member.status === 'pending' ? 'En attente' : 'Inactif'}
                       </Badge>
-                      <Badge variant="outline">{member.role}</Badge>
+                      <Badge variant="outline">{member.role === 'admin' ? 'Admin' : 'Membre'}</Badge>
                       <Button 
                         variant="ghost" 
                         size="sm"
@@ -323,8 +434,9 @@ export default function IntegrationsPage() {
                       </Button>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
           
