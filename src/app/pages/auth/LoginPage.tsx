@@ -102,7 +102,7 @@ export default function LoginPage() {
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
               <Brain className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold">AI SDR</span>
+            <span className="text-xl font-bold">LeadFlow</span>
           </Link>
           
           <h1 className="text-3xl font-bold mb-2">Bienvenue</h1>
@@ -248,7 +248,7 @@ export default function LoginPage() {
             Notre IA recherche et personnalise chaque approche, en réservant des rendez-vous automatiquement.
           </p>
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-            <p className="italic mb-4">"The best AI SDR tool we've ever used. Reply rates increased by 300%."</p>
+            <p className="italic mb-4">"Le meilleur outil LeadFlow que nous ayons jamais utilisé. Les taux de réponse ont augmenté de 300%."</p>
             <div className="flex items-center">
               <div className="w-10 h-10 rounded-full bg-white/20 mr-3"></div>
               <div>

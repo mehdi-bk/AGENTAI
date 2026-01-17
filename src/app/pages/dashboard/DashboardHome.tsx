@@ -10,11 +10,11 @@ export default function DashboardHome() {
     { label: 'Campagnes actives', value: '8', change: '+2 depuis la semaine dernière', trending: true, icon: Rocket },
     { label: 'Rendez-vous réservés', value: '23', change: '+43% ce mois-ci', trending: true, icon: Calendar },
     { label: 'Taux de réponse', value: '18.5%', change: '+2.3% d\'augmentation', trending: true, icon: Mail },
-    { label: 'IA SDR actifs', value: '3/5', change: '60% de capacité utilisée', trending: false, icon: Bot },
+    { label: 'Agents IA actifs', value: '3/5', change: '60% de capacité utilisée', trending: false, icon: Bot },
   ];
   
   const activities = [
-    { time: 'Il y a 2 heures', action: 'IA SDR "Sales-Hunter" a envoyé 45 emails', type: 'success' },
+    { time: 'Il y a 2 heures', action: 'Agent IA "Sales-Hunter" a envoyé 45 emails', type: 'success' },
     { time: 'Il y a 3 heures', action: 'Rendez-vous réservé avec John chez Acme Corp', type: 'success' },
     { time: 'Il y a 5 heures', action: 'Campagne "SaaS Outreach Q1" phase de recherche terminée', type: 'info' },
     { time: 'Il y a 1 jour', action: 'Nouveau prospect ajouté à "Enterprise Pipeline"', type: 'info' },

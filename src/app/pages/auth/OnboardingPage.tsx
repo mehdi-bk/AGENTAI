@@ -97,7 +97,7 @@ export default function OnboardingPage() {
           </div>
 
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Bienvenue sur AI SDR !</h1>
+            <h1 className="text-3xl font-bold mb-2">Bienvenue sur LeadFlow !</h1>
             <p className="text-gray-600">
               Complétez votre profil pour commencer à automatiser votre démarchage
             </p>

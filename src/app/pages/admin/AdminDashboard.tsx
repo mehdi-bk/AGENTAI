@@ -7,7 +7,7 @@ import { Users, Bot, Calendar, DollarSign, Activity, TrendingUp } from 'lucide-r
 export default function AdminDashboard() {
   const globalStats = [
     { label: 'Total Clients', value: '47', icon: Users },
-    { label: 'AI SDRs Running', value: '126', icon: Bot },
+    { label: 'Agents IA actifs', value: '126', icon: Bot },
     { label: 'Total Meetings', value: '1,847', icon: Calendar },
     { label: 'System Health', value: '99.8%', icon: Activity },
     { label: 'Revenue MRR', value: '€67,200', icon: DollarSign },
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
               <TableRow>
                 <TableHead>Company</TableHead>
                 <TableHead>Plan</TableHead>
-                <TableHead>AI SDRs Used</TableHead>
+                <TableHead>Agents utilisés</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>MRR</TableHead>
                 <TableHead>Join Date</TableHead>

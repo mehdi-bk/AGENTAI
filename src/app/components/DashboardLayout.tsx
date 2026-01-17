@@ -154,7 +154,7 @@ export default function DashboardLayout() {
     { name: 'Prospects', href: '/dashboard/prospects', icon: Users },
     { name: 'Rendez-vous', href: '/dashboard/meetings', icon: Calendar },
     { name: 'Analytique', href: '/dashboard/analytics', icon: BarChart3 },
-    { name: 'Paramètres IA SDR', href: '/dashboard/ai-sdr-settings', icon: Bot },
+    { name: 'Paramètres agents', href: '/dashboard/ai-sdr-settings', icon: Bot },
     { name: 'Intégrations', href: '/dashboard/integrations', icon: Plug },
     { name: 'Paramètres', href: '/dashboard/settings', icon: Settings },
   ];
@@ -170,7 +170,7 @@ export default function DashboardLayout() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
                 <Brain className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-bold">AI SDR</span>
+              <span className="text-lg font-bold">LeadFlow</span>
             </Link>
             <button 
               onClick={() => setSidebarOpen(false)}

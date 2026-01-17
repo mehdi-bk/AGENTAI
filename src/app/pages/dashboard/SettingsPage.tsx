@@ -141,7 +141,7 @@ export default function SettingsPage() {
                   <User className="w-5 h-5" />
                   Informations de compte
                 </CardTitle>
-                <CardDescription>Informations de votre compte AI SDR</CardDescription>
+                <CardDescription>Informations de votre compte LeadFlow</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
@@ -312,7 +312,7 @@ export default function SettingsPage() {
                       <span className="font-medium">14 février 2026</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">AI SDRs inclus</span>
+                      <span className="text-gray-600">Agents IA inclus</span>
                       <span className="font-medium">5 agents</span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -409,7 +409,7 @@ export default function SettingsPage() {
                 { label: 'Email notifications for new meetings', id: 'email-meetings' },
                 { label: 'Campaign completion alerts', id: 'campaign-alerts' },
                 { label: 'Weekly performance digest', id: 'weekly-digest' },
-                { label: 'AI SDR alerts', id: 'ai-alerts' },
+                { label: 'Alertes agents IA', id: 'ai-alerts' },
               ].map((item) => (
                 <div key={item.id} className="flex items-center justify-between">
                   <Label htmlFor={item.id}>{item.label}</Label>

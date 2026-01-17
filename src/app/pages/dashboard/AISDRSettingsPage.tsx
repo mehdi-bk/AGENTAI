@@ -14,12 +14,12 @@ export default function AISDRSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">AI SDR Settings</h1>
-          <p className="text-gray-600">Configure and manage your AI sales development representatives</p>
+          <h1 className="text-3xl font-bold mb-2">Paramètres LeadFlow</h1>
+          <p className="text-gray-600">Configurez et gérez vos agents commerciaux IA</p>
         </div>
         <Button className="bg-gradient-to-r from-primary to-secondary">
           <Plus className="w-4 h-4 mr-2" />
-          Create New AI SDR
+          Créer un nouvel agent
         </Button>
       </div>
       

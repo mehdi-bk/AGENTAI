@@ -133,7 +133,7 @@ export default function AnalyticsPage() {
         
         <Card>
           <CardHeader>
-            <CardTitle>Top Performing AI SDRs</CardTitle>
+            <CardTitle>Meilleurs agents IA</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

@@ -126,10 +126,10 @@ export default function CampaignsPage() {
                 </div>
               </div>
               <div>
-                <Label>AI SDR</Label>
+                <Label>Agent IA</Label>
                 <Select>
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select AI SDR" />
+                    <SelectValue placeholder="Sélectionnez un agent" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="sales-hunter">Sales-Hunter</SelectItem>
