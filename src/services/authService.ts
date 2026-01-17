@@ -84,40 +84,17 @@ export const signInWithOutlook = async () => {
   try {
     console.log('🔐 Starting Outlook OAuth sign in...');
     
-    // Nettoyer COMPLÈTEMENT toute session existante
-    console.log('🧹 Cleaning ALL existing sessions before OAuth...');
-    
-    // 1. Déconnexion Supabase globale
-    await supabase.auth.signOut({ scope: 'global' });
-    
-    // 2. Nettoyer le localStorage
-    console.log('🗑️ Clearing localStorage...');
-    const keysToRemove = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && (key.includes('supabase') || key.includes('auth'))) {
-        keysToRemove.push(key);
-      }
-    }
-    keysToRemove.forEach(key => localStorage.removeItem(key));
-    
-    // 3. Nettoyer le sessionStorage
-    sessionStorage.clear();
-    
-    // Délai plus long pour garantir le nettoyage
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    console.log('🔄 Starting fresh OAuth flow...');
+    console.log('🔄 Starting Outlook OAuth flow...');
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
-        redirectTo: `${import.meta.env.VITE_APP_URL}/auth/callback`,
+        // Supabase redirigera automatiquement vers son propre callback
+        // puis vers cette URL après l'authentification
+        redirectTo: `${window.location.origin}/auth/callback`,
         scopes: 'email openid profile offline_access',
         queryParams: {
           prompt: 'select_account', // Force la sélection du compte Microsoft
-          login_hint: '', // Vide pour ne pas suggérer de compte
         },
-        skipBrowserRedirect: false,
       },
     });
 

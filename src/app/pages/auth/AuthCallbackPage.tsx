@@ -12,6 +12,8 @@ export default function AuthCallbackPage() {
       try {
         console.log('🔄 Auth callback started...');
         console.log('🌐 Current URL:', window.location.href);
+        console.log('🔗 Search params:', window.location.search);
+        console.log('🔗 Hash:', window.location.hash);
         
         // Attendre que Supabase termine complètement l'authentification OAuth
         console.log('⏳ Waiting for Supabase to complete authentication...');
@@ -25,12 +27,28 @@ export default function AuthCallbackPage() {
           needsOnboarding, 
           userEmail: user?.email,
           userId: user?.id,
-          userCreatedAt: user?.created_at
+          userCreatedAt: user?.created_at,
+          userMetadata: user?.user_metadata,
+          appMetadata: user?.app_metadata
         });
 
         if (!user) {
           console.error('❌ No user found after authentication');
-          toast.error('Erreur d\'authentification. Veuillez réessayer.');
+          console.error('❌ This might be a session issue or OAuth callback error');
+          
+          // Vérifier s'il y a des erreurs dans l'URL
+          const params = new URLSearchParams(window.location.search);
+          const error = params.get('error');
+          const errorDescription = params.get('error_description');
+          
+          if (error) {
+            console.error('❌ OAuth Error:', error);
+            console.error('❌ Error Description:', errorDescription);
+            toast.error(`Erreur OAuth: ${errorDescription || error}`);
+          } else {
+            toast.error('Erreur d\'authentification. Veuillez réessayer.');
+          }
+          
           navigate('/login', { replace: true });
           return;
         }
@@ -53,6 +71,7 @@ export default function AuthCallbackPage() {
         }
       } catch (error) {
         console.error('❌ Error in auth callback:', error);
+        console.error('❌ Error details:', JSON.stringify(error, null, 2));
         toast.error('Erreur lors de la connexion. Veuillez réessayer.');
         navigate('/login', { replace: true });
       }
