@@ -84,13 +84,30 @@ export const signInWithOutlook = async () => {
   try {
     console.log('🔐 Starting Outlook OAuth sign in...');
     
-    // Nettoyer toute session existante AVANT de démarrer OAuth
-    console.log('🧹 Cleaning existing session before OAuth...');
-    await supabase.auth.signOut({ scope: 'local' });
+    // Nettoyer COMPLÈTEMENT toute session existante
+    console.log('🧹 Cleaning ALL existing sessions before OAuth...');
     
-    // Petit délai pour s'assurer que la session est bien nettoyée
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // 1. Déconnexion Supabase globale
+    await supabase.auth.signOut({ scope: 'global' });
     
+    // 2. Nettoyer le localStorage
+    console.log('🗑️ Clearing localStorage...');
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('supabase') || key.includes('auth'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    // 3. Nettoyer le sessionStorage
+    sessionStorage.clear();
+    
+    // Délai plus long pour garantir le nettoyage
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    console.log('🔄 Starting fresh OAuth flow...');
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
@@ -98,7 +115,9 @@ export const signInWithOutlook = async () => {
         scopes: 'email openid profile offline_access',
         queryParams: {
           prompt: 'select_account', // Force la sélection du compte Microsoft
+          login_hint: '', // Vide pour ne pas suggérer de compte
         },
+        skipBrowserRedirect: false,
       },
     });
 

@@ -6,12 +6,13 @@ import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/app/components/ui/dialog';
-import { Check, Calendar, Mail, Users, Slack, Video, Building2, Plus, X, Settings, ExternalLink, Loader2 } from 'lucide-react';
+import { Check, Calendar, Mail, Users, Slack, Video, Building2, Plus, X, Settings, ExternalLink, Loader2, Apple } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
   getUserIntegrations, 
   connectGoogleCalendar, 
-  connectGmail, 
+  connectGmail,
+  connectAppleCalendar,
   disconnectIntegration,
   getTeamMembers,
   inviteTeamMember,
@@ -55,7 +56,7 @@ export default function IntegrationsPage() {
     { 
       name: 'Google Calendar', 
       description: 'Synchronisez vos rendez-vous et disponibilités', 
-      status: 'connected', 
+      status: 'available', 
       category: 'calendar',
       icon: <Calendar className="w-6 h-6" />,
       color: 'from-blue-500 to-blue-600'
@@ -63,10 +64,18 @@ export default function IntegrationsPage() {
     { 
       name: 'Gmail', 
       description: 'Envoyez des emails depuis votre boîte', 
-      status: 'connected', 
+      status: 'available', 
       category: 'email',
       icon: <Mail className="w-6 h-6" />,
       color: 'from-red-500 to-red-600'
+    },
+    { 
+      name: 'Apple Calendar', 
+      description: 'Synchronisez votre agenda iCloud', 
+      status: 'coming-soon', 
+      category: 'calendar',
+      icon: <Apple className="w-6 h-6" />,
+      color: 'from-gray-700 to-gray-900'
     },
     { 
       name: 'HubSpot CRM', 
@@ -128,6 +137,9 @@ export default function IntegrationsPage() {
           break;
         case 'Gmail':
           result = await connectGmail();
+          break;
+        case 'Apple Calendar':
+          result = await connectAppleCalendar();
           break;
         default:
           toast.error(`Intégration ${provider} en développement`);

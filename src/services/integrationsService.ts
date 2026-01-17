@@ -106,6 +106,29 @@ export const connectGmail = async () => {
 };
 
 /**
+ * Connecte Apple Calendar (via Sign in with Apple)
+ */
+export const connectAppleCalendar = async () => {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard/integrations?provider=apple_calendar`,
+        scopes: 'name email',
+      },
+    });
+
+    if (error) {
+      return { success: false, message: error.message };
+    }
+
+    return { success: true, data, message: 'Redirection vers Apple...' };
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+};
+
+/**
  * Sauvegarde une intégration
  */
 export const saveIntegration = async (provider: string, accessToken: string, refreshToken?: string, expiresAt?: string) => {
