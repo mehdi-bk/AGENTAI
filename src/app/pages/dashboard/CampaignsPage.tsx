@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -20,42 +20,35 @@ import {
   DialogTrigger,
 } from '@/app/components/ui/dialog';
 import { Label } from '@/app/components/ui/label';
-import { Rocket, Search, Plus, MoreVertical, Bot, Mail, Phone, Play, Pause, Edit } from 'lucide-react';
+import { Rocket, Search, Plus, MoreVertical, Bot, Mail, Phone, Play, Pause, Edit, Loader2 } from 'lucide-react';
+import { campaigns as campaignsService } from '@/services/dashboardService';
+import { toast } from 'sonner';
 
 export default function CampaignsPage() {
   const [filter, setFilter] = useState('all');
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  const campaigns = [
-    {
-      name: 'SaaS Outreach Q1',
-      status: 'active',
-      sdr: 'Sales-Hunter',
-      progress: { research: 80, outreach: 45, followup: 12 },
-      stats: { sent: 450, opens: 234, replies: 83, meetings: 12 },
-    },
-    {
-      name: 'Enterprise Pipeline',
-      status: 'active',
-      sdr: 'Lead-Gen-Pro',
-      progress: { research: 100, outreach: 72, followup: 28 },
-      stats: { sent: 320, opens: 198, replies: 61, meetings: 9 },
-    },
-    {
-      name: 'Y Combinator Batch',
-      status: 'paused',
-      sdr: 'Startup-Ninja',
-      progress: { research: 100, outreach: 88, followup: 65 },
-      stats: { sent: 580, opens: 421, replies: 112, meetings: 18 },
-    },
-    {
-      name: 'Real Estate Investors',
-      status: 'draft',
-      sdr: 'Sales-Hunter',
-      progress: { research: 25, outreach: 0, followup: 0 },
-      stats: { sent: 0, opens: 0, replies: 0, meetings: 0 },
-    },
-  ];
+  // MBK: Fetch real campaigns from API
+  useEffect(() => {
+    const loadCampaigns = async () => {
+      try {
+        setLoading(true);
+        const response = await campaignsService.list(filter !== 'all' ? filter : undefined);
+        if (response.success) {
+          setCampaigns(response.data || []);
+        }
+      } catch (error: any) {
+        console.error('Error loading campaigns:', error);
+        toast.error('Erreur lors du chargement des campagnes');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadCampaigns();
+  }, [filter]);
   
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -69,6 +62,14 @@ export default function CampaignsPage() {
   const filteredCampaigns = filter === 'all' 
     ? campaigns 
     : campaigns.filter(c => c.status === filter);
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6">
@@ -95,7 +96,7 @@ export default function CampaignsPage() {
             <div className="space-y-4 py-4">
               <div>
                 <Label>Campaign Name</Label>
-                <Input placeholder="e.g., Q1 SaaS Outreach" className="mt-1" />
+                <Input id="campaign-name" placeholder="e.g., Q1 SaaS Outreach" className="mt-1" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -155,7 +156,33 @@ export default function CampaignsPage() {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setCreateModalOpen(false)}>Cancel</Button>
-              <Button className="bg-gradient-to-r from-primary to-secondary">
+              <Button 
+                className="bg-gradient-to-r from-primary to-secondary"
+                onClick={async () => {
+                  // TODO: Get form values and create campaign
+                  const formData = {
+                    name: (document.getElementById('campaign-name') as HTMLInputElement)?.value || 'New Campaign',
+                    status: 'DRAFT',
+                    goal: 'meetings',
+                    targetIndustry: 'saas'
+                  };
+                  
+                  try {
+                    const response = await campaignsService.create(formData);
+                    if (response.success) {
+                      toast.success('Campagne créée avec succès');
+                      setCreateModalOpen(false);
+                      // Reload campaigns
+                      const listResponse = await campaignsService.list();
+                      if (listResponse.success) {
+                        setCampaigns(listResponse.data || []);
+                      }
+                    }
+                  } catch (error: any) {
+                    toast.error('Erreur lors de la création de la campagne');
+                  }
+                }}
+              >
                 Create Campaign
               </Button>
             </div>
@@ -183,8 +210,24 @@ export default function CampaignsPage() {
       </div>
       
       {/* Campaigns Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCampaigns.map((campaign, i) => (
+      {filteredCampaigns.length === 0 ? (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Rocket className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+            <h3 className="text-xl font-semibold mb-2">Aucune campagne</h3>
+            <p className="text-gray-600 mb-6">Créez votre première campagne pour commencer</p>
+            <Button 
+              className="bg-gradient-to-r from-primary to-secondary"
+              onClick={() => setCreateModalOpen(true)}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Créer une campagne
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCampaigns.map((campaign, i) => (
           <Card key={i} className="hover:shadow-lg transition-shadow group">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
@@ -209,41 +252,41 @@ export default function CampaignsPage() {
                 <div>
                   <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                     <span>Research</span>
-                    <span>{campaign.progress.research}%</span>
+                    <span>{campaign.progress?.research || 0}%</span>
                   </div>
-                  <Progress value={campaign.progress.research} className="h-2" />
+                  <Progress value={campaign.progress?.research || 0} className="h-2" />
                 </div>
                 <div>
                   <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                     <span>Outreach</span>
-                    <span>{campaign.progress.outreach}%</span>
+                    <span>{campaign.progress?.outreach || 0}%</span>
                   </div>
-                  <Progress value={campaign.progress.outreach} className="h-2" />
+                  <Progress value={campaign.progress?.outreach || 0} className="h-2" />
                 </div>
                 <div>
                   <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                     <span>Follow-up</span>
-                    <span>{campaign.progress.followup}%</span>
+                    <span>{campaign.progress?.followup || 0}%</span>
                   </div>
-                  <Progress value={campaign.progress.followup} className="h-2" />
+                  <Progress value={campaign.progress?.followup || 0} className="h-2" />
                 </div>
               </div>
               
               <div className="grid grid-cols-4 gap-2 mb-4 p-3 bg-gray-50 rounded-lg">
                 <div className="text-center">
-                  <div className="text-lg font-bold">{campaign.stats.sent}</div>
+                  <div className="text-lg font-bold">{campaign.stats?.sent || 0}</div>
                   <div className="text-xs text-gray-600">Sent</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold">{campaign.stats.opens}</div>
+                  <div className="text-lg font-bold">{campaign.stats?.opens || 0}</div>
                   <div className="text-xs text-gray-600">Opens</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold">{campaign.stats.replies}</div>
+                  <div className="text-lg font-bold">{campaign.stats?.replies || 0}</div>
                   <div className="text-xs text-gray-600">Replies</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-success">{campaign.stats.meetings}</div>
+                  <div className="text-lg font-bold text-success">{campaign.stats?.meetings || 0}</div>
                   <div className="text-xs text-gray-600">Meetings</div>
                 </div>
               </div>
@@ -265,8 +308,9 @@ export default function CampaignsPage() {
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

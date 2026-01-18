@@ -12,6 +12,7 @@ export interface VerifyOTPParams {
 export interface SignUpParams {
   email: string;
   fullName?: string;
+  phone?: string;
   company?: string;
 }
 
@@ -180,7 +181,7 @@ export const checkOnboardingStatus = async () => {
 };
 
 /**
- * Envoie un code de vérification OTP par email
+ * Envoie un code de vérification OTP par email (code numérique, pas de lien)
  */
 export const sendVerificationCode = async ({ email }: SignInWithOTPParams) => {
   try {
@@ -188,7 +189,8 @@ export const sendVerificationCode = async ({ email }: SignInWithOTPParams) => {
       email,
       options: {
         shouldCreateUser: true, // Crée automatiquement un user si n'existe pas
-        emailRedirectTo: `${import.meta.env.VITE_APP_URL}/dashboard`,
+        // Don't include emailRedirectTo to force OTP code instead of magic link
+        // emailRedirectTo: `${import.meta.env.VITE_APP_URL}/dashboard`,
       },
     });
 
@@ -248,8 +250,9 @@ export const verifyOTPCode = async ({ email, token }: VerifyOTPParams) => {
 
 /**
  * Inscription avec métadonnées supplémentaires
+ * Envoie un code OTP numérique (pas de lien magique)
  */
-export const signUpWithMetadata = async ({ email, fullName, company }: SignUpParams) => {
+export const signUpWithMetadata = async ({ email, fullName, phone, company }: SignUpParams) => {
   try {
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
@@ -257,9 +260,11 @@ export const signUpWithMetadata = async ({ email, fullName, company }: SignUpPar
         shouldCreateUser: true,
         data: {
           full_name: fullName,
+          phone: phone,
           company: company,
         },
-        emailRedirectTo: `${import.meta.env.VITE_APP_URL}/dashboard`,
+        // Don't include emailRedirectTo to force OTP code instead of magic link
+        // emailRedirectTo: `${import.meta.env.VITE_APP_URL}/dashboard`,
       },
     });
 

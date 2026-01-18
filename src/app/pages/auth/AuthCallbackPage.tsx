@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { checkOnboardingStatus } from '@/services/authService';
+import { syncClient } from '@/services/clientService';
 import { toast } from 'sonner';
 
 export default function AuthCallbackPage() {
@@ -66,6 +67,15 @@ export default function AuthCallbackPage() {
           navigate('/onboarding', { replace: true });
         } else {
           console.log('➡️ EXISTING USER - redirecting to dashboard...');
+          
+          // Ensure client is synced to backend (in case it wasn't created before)
+          try {
+            await syncClient(user);
+            console.log('✅ Client sync verified');
+          } catch (syncError) {
+            console.warn('⚠️ Client sync failed (non-blocking):', syncError);
+          }
+          
           toast.success(`Bienvenue ${user.email} !`);
           navigate('/dashboard', { replace: true });
         }

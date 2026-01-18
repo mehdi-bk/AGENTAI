@@ -1,3 +1,4 @@
+// MBK: Authentication context with Supabase integration
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';

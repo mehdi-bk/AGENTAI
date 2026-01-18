@@ -1,3 +1,4 @@
+// MBK: Landing page component with marketing sections
 import { Link } from 'react-router-dom';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
@@ -474,7 +475,7 @@ export default function LandingPage() {
           <div className="border-t pt-8 space-y-4">
             <div className="flex flex-col md:flex-row items-center justify-between text-sm text-gray-600">
               <p>© 2026 LeadFlow. Tous droits réservés.</p>
-              <p className="text-gray-500">Fondateurs : Roman Gradante et Mehdi</p>
+              <p className="text-gray-500">Fondateurs : Mehdi Ben Khadra et Roman Gradante</p>
             </div>
           </div>
         </div>

@@ -1,0 +1,334 @@
+// Schema Prisma pour le panneau d'administration sécurisé
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modèle Admin avec sécurité renforcée
+model Admin {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String    // Hash bcrypt avec 12 rounds minimum
+  fullName          String
+  role              AdminRole @default(ADMIN)
+  isActive          Boolean   @default(true)
+  twoFactorEnabled  Boolean   @default(false)
+  twoFactorSecret   String?   // Secret TOTP pour 2FA
+  twoFactorBackupCodes String[] // Codes de secours pour 2FA
+  lastLogin         DateTime?
+  lastLoginIp       String?
+  failedLoginAttempts Int     @default(0)
+  lockedUntil       DateTime?
+  ipWhitelist       String[] // Liste d'IP autorisées (optionnel)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  sessions          AdminSession[]
+  auditLogs         AuditLog[]
+  actions           AdminAction[]
+  
+  @@index([email])
+  @@index([role])
+  @@map("admins")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  SUPPORT
+}
+
+// Sessions admin avec expiration automatique
+model AdminSession {
+  id            String   @id @default(uuid())
+  adminId       String
+  token         String   @unique
+  refreshToken  String   @unique
+  ipAddress     String
+  userAgent     String?
+  expiresAt     DateTime
+  lastActivity  DateTime @default(now())
+  createdAt     DateTime @default(now())
+  
+  admin         Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  
+  @@index([adminId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("admin_sessions")
+}
+
+// Logs d'audit complets
+model AuditLog {
+  id          String    @id @default(uuid())
+  adminId     String
+  action      String    // Type d'action (CREATE, UPDATE, DELETE, LOGIN, etc.)
+  resource    String    // Ressource concernée (USER, INVOICE, etc.)
+  resourceId  String?   // ID de la ressource
+  details     Json?     // Détails supplémentaires de l'action
+  ipAddress   String
+  userAgent   String?
+  createdAt   DateTime  @default(now())
+  
+  admin       Admin     @relation(fields: [adminId], references: [id])
+  
+  @@index([adminId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// Actions admin pour tracking
+model AdminAction {
+  id          String    @id @default(uuid())
+  adminId     String
+  actionType  String
+  targetType  String
+  targetId    String
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  
+  admin       Admin     @relation(fields: [adminId], references: [id])
+  
+  @@index([adminId])
+  @@index([targetType, targetId])
+  @@map("admin_actions")
+}
+
+// Utilisateurs clients
+model Client {
+  id              String        @id @default(uuid())
+  email           String        @unique
+  fullName        String
+  company         String?
+  subscriptionType SubscriptionType @default(STARTER)
+  status          ClientStatus  @default(ACTIVE)
+  credits         Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  suspendedAt     DateTime?
+  lastLogin       DateTime?
+  
+  // Relations
+  campaigns       Campaign[]
+  creditTransactions CreditTransaction[]
+  invoices        Invoice[]
+  refunds         Refund[]
+  loginHistory    LoginHistory[]
+  
+  @@index([email])
+  @@index([status])
+  @@index([subscriptionType])
+  @@map("clients")
+}
+
+enum SubscriptionType {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  CANCELLED
+}
+
+// Campagnes des clients
+model Campaign {
+  id          String          @id @default(uuid())
+  clientId    String
+  name        String
+  status      CampaignStatus  @default(DRAFT)
+  startDate   DateTime?
+  endDate     DateTime?
+  performance Json?           // Métriques de performance
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  client      Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  @@index([clientId])
+  @@index([status])
+  @@map("campaigns")
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+// Transactions de crédits
+model CreditTransaction {
+  id          String              @id @default(uuid())
+  clientId    String
+  type        CreditTransactionType
+  amount      Int                 // Positif pour ajout, négatif pour retrait
+  balance     Int                 // Solde après transaction
+  description String?
+  adminId     String?             // Admin qui a effectué la transaction
+  createdAt   DateTime            @default(now())
+  
+  client      Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  @@index([clientId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("credit_transactions")
+}
+
+enum CreditTransactionType {
+  PURCHASE
+  ADMIN_ADD
+  ADMIN_REMOVE
+  USAGE
+  REFUND
+}
+
+// Factures
+model Invoice {
+  id              String        @id @default(uuid())
+  clientId        String
+  invoiceNumber   String        @unique
+  amount          Float
+  currency        String        @default("EUR")
+  status          InvoiceStatus @default(PENDING)
+  dueDate         DateTime
+  paidAt          DateTime?
+  items           Json          // Détails des items facturés
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  client          Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  @@index([clientId])
+  @@index([status])
+  @@index([invoiceNumber])
+  @@map("invoices")
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+  REFUNDED
+}
+
+// Remboursements
+model Refund {
+  id              String        @id @default(uuid())
+  clientId        String
+  invoiceId      String?
+  amount          Float
+  currency        String        @default("EUR")
+  reason          String
+  status          RefundStatus  @default(PENDING)
+  adminNotes      String?
+  processedBy     String?       // Admin ID
+  processedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  client          Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  @@index([clientId])
+  @@index([status])
+  @@map("refunds")
+}
+
+enum RefundStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PROCESSED
+}
+
+// Codes promotionnels
+model PromoCode {
+  id                  String      @id @default(uuid())
+  code                String      @unique
+  discountType        DiscountType
+  discountValue       Float       // Pourcentage ou montant fixe
+  startDate           DateTime
+  endDate             DateTime
+  maxUses             Int?        // Limite globale d'utilisation
+  maxUsesPerUser      Int         @default(1)
+  restrictedPlans     SubscriptionType[]
+  newCustomersOnly    Boolean     @default(false)
+  isActive            Boolean     @default(true)
+  usageCount          Int         @default(0)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  
+  usages              PromoCodeUsage[]
+  
+  @@index([code])
+  @@index([isActive])
+  @@map("promo_codes")
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+// Utilisations des codes promo
+model PromoCodeUsage {
+  id          String    @id @default(uuid())
+  promoCodeId String
+  clientId    String
+  invoiceId   String?
+  discountAmount Float
+  usedAt      DateTime  @default(now())
+  
+  promoCode   PromoCode @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+  
+  @@index([promoCodeId])
+  @@index([clientId])
+  @@map("promo_code_usages")
+}
+
+// Historique de connexion
+model LoginHistory {
+  id          String    @id @default(uuid())
+  clientId    String
+  ipAddress   String
+  userAgent   String?
+  success     Boolean
+  failureReason String?
+  createdAt   DateTime  @default(now())
+  
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  @@index([clientId])
+  @@index([createdAt])
+  @@map("login_history")
+}
+
+// Tentatives de brute force
+model BruteForceAttempt {
+  id          String    @id @default(uuid())
+  identifier  String    // Email ou IP
+  type        String    // EMAIL ou IP
+  attempts    Int       @default(1)
+  blockedUntil DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@unique([identifier, type])
+  @@index([identifier, type])
+  @@index([blockedUntil])
+  @@map("brute_force_attempts")
+}

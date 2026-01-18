@@ -1,21 +1,44 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Brain, Loader2, Building } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { syncClient } from '@/services/clientService';
 import { toast } from 'sonner';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    fullName: '',
     company: '',
     companySize: '',
     industry: '',
   });
+  
+  // Load signup data if available
+  useEffect(() => {
+    const signupData = localStorage.getItem('signup_data');
+    if (signupData) {
+      try {
+        const data = JSON.parse(signupData);
+        if (data.fullName) {
+          setFormData(prev => ({ ...prev, fullName: data.fullName }));
+        }
+        if (data.company) {
+          setFormData(prev => ({ ...prev, company: data.company }));
+        }
+        // Phone is already saved in user metadata, no need to load it here
+        // Clear after loading
+        localStorage.removeItem('signup_data');
+      } catch (error) {
+        console.error('Error loading signup data:', error);
+      }
+    }
+  }, []);
 
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -51,11 +74,18 @@ export default function OnboardingPage() {
         return;
       }
 
+      // Use fullName from form, user metadata, or fallback to email prefix
+      const finalFullName = formData.fullName || 
+                           user.user_metadata?.full_name || 
+                           user.email?.split('@')[0] || 
+                           '';
+
       console.log('💾 Updating user metadata...');
       
       // Mettre à jour les métadonnées et ATTENDRE la confirmation
       const { data: updateData, error: updateError } = await supabase.auth.updateUser({
         data: {
+          full_name: finalFullName,
           company: formData.company,
           company_size: formData.companySize,
           industry: formData.industry,
@@ -70,6 +100,17 @@ export default function OnboardingPage() {
       }
 
       console.log('✅ User metadata updated successfully:', updateData?.user?.user_metadata);
+      
+      // CRITICAL: Sync user to backend Client table
+      console.log('🔄 Syncing client to backend database...');
+      try {
+        await syncClient(updateData.user);
+        console.log('✅ Client synced to backend successfully');
+      } catch (syncError: any) {
+        console.error('⚠️ Failed to sync client to backend:', syncError);
+        // Don't block the flow, but log the error
+        // The sync can be retried later
+      }
       
       // Petite pause pour s'assurer que les données sont bien synchronisées
       await new Promise(resolve => setTimeout(resolve, 500));

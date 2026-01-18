@@ -1,7 +1,12 @@
+/**
+ * Main Application Router
+ * MBK: Core routing configuration with protected routes and admin panel
+ */
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/app/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/app/components/ProtectedRoute';
+import AdminProtectedRoute from '@/app/components/AdminProtectedRoute';
 import OnboardingRoute from '@/app/components/OnboardingRoute';
 
 // Marketing
@@ -30,7 +35,12 @@ import SettingsPage from '@/app/pages/dashboard/SettingsPage';
 
 // Admin
 import AdminLayout from '@/app/components/AdminLayout';
+import AdminLoginPage from '@/app/pages/admin/AdminLoginPage';
 import AdminDashboard from '@/app/pages/admin/AdminDashboard';
+import AdminClientsPage from '@/app/pages/admin/AdminClientsPage';
+import AdminInvoicesPage from '@/app/pages/admin/AdminInvoicesPage';
+import AdminRefundsPage from '@/app/pages/admin/AdminRefundsPage';
+import AdminPromoCodesPage from '@/app/pages/admin/AdminPromoCodesPage';
 
 export default function App() {
   return (
@@ -71,13 +81,20 @@ export default function App() {
             <Route path="settings" element={<SettingsPage />} />
           </Route>
           
+          {/* Admin Login - Public */}
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          
           {/* Admin - Protected */}
           <Route path="/admin" element={
-            <ProtectedRoute>
+            <AdminProtectedRoute>
               <AdminLayout />
-            </ProtectedRoute>
+            </AdminProtectedRoute>
           }>
             <Route index element={<AdminDashboard />} />
+            <Route path="clients" element={<AdminClientsPage />} />
+            <Route path="invoices" element={<AdminInvoicesPage />} />
+            <Route path="refunds" element={<AdminRefundsPage />} />
+            <Route path="promo-codes" element={<AdminPromoCodesPage />} />
           </Route>
         </Routes>
         <Toaster />

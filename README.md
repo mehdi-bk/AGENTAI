@@ -2,6 +2,27 @@
 
   Plateforme SaaS B2B pour automatiser le démarchage commercial avec des agents IA intelligents.
 
+  ## 📖 Documentation
+
+  **Essential guides for setup and development:**
+
+  - **[SETUP_GUIDE.md](./SETUP_GUIDE.md)** - Complete setup guide for new computers
+    - Database setup (PostgreSQL)
+    - Backend & Frontend configuration
+    - Environment variables
+    - Admin panel access
+    - Database administration
+    - Troubleshooting
+
+  - **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Quick command reference
+    - Starting servers
+    - Database commands
+    - Creating admin users
+    - Common troubleshooting
+
+  - **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Supabase configuration (for client authentication)
+  - **[OAUTH_SETUP.md](./OAUTH_SETUP.md)** - OAuth setup (Google & Azure/Outlook authentication)
+
   ## 🚀 Quick Start
 
   ### 1. Installation
@@ -20,7 +41,7 @@
   VITE_APP_URL=http://localhost:5173
   ```
 
-  **📖 Guide complet :** Voir [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) pour la configuration détaillée.
+  **📖 Guide complet :** See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for detailed configuration.
 
   ### 3. Lancer le projet
 
@@ -163,10 +184,10 @@
 
   ## 💬 Support
 
-  Pour toute question ou problème :
-  - Ouvrez une issue sur GitHub
-  - Consultez [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)
-  - Contactez l'équipe
+  For questions or issues:
+  - Check [SETUP_GUIDE.md](./SETUP_GUIDE.md) for setup help
+  - Check [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) for quick commands
+  - See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for Supabase configuration
 
   ---
 

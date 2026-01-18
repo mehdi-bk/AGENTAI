@@ -1,41 +1,127 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Progress } from '@/app/components/ui/progress';
 import { Badge } from '@/app/components/ui/badge';
+import { Loader2 } from 'lucide-react';
 import { TrendingUp, Users, Mail, Calendar, Rocket, ArrowRight, Bot, Play, Pause } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { dashboard as dashboardService, campaigns } from '@/services/dashboardService';
+import { toast } from 'sonner';
 
 export default function DashboardHome() {
-  const stats = [
-    { label: 'Campagnes actives', value: '8', change: '+2 depuis la semaine dernière', trending: true, icon: Rocket },
-    { label: 'Rendez-vous réservés', value: '23', change: '+43% ce mois-ci', trending: true, icon: Calendar },
-    { label: 'Taux de réponse', value: '18.5%', change: '+2.3% d\'augmentation', trending: true, icon: Mail },
-    { label: 'Agents IA actifs', value: '3/5', change: '60% de capacité utilisée', trending: false, icon: Bot },
-  ];
+  // MBK: Removed hardcoded demo data - will be replaced with real API calls
+  const [stats, setStats] = useState([
+    { label: 'Campagnes actives', value: '0', change: 'Aucune donnée', trending: false, icon: Rocket },
+    { label: 'Rendez-vous réservés', value: '0', change: 'Aucune donnée', trending: false, icon: Calendar },
+    { label: 'Taux de réponse', value: '0%', change: 'Aucune donnée', trending: false, icon: Mail },
+    { label: 'Agents IA actifs', value: '0/0', change: 'Aucune donnée', trending: false, icon: Bot },
+  ]);
   
-  const activities = [
-    { time: 'Il y a 2 heures', action: 'Agent IA "Sales-Hunter" a envoyé 45 emails', type: 'success' },
-    { time: 'Il y a 3 heures', action: 'Rendez-vous réservé avec John chez Acme Corp', type: 'success' },
-    { time: 'Il y a 5 heures', action: 'Campagne "SaaS Outreach Q1" phase de recherche terminée', type: 'info' },
-    { time: 'Il y a 1 jour', action: 'Nouveau prospect ajouté à "Enterprise Pipeline"', type: 'info' },
-    { time: 'Il y a 1 jour', action: '3 réponses positives reçues', type: 'success' },
-  ];
+  const [activities, setActivities] = useState<any[]>([]);
+  const [activeCampaigns, setActiveCampaigns] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  const activeCampaigns = [
-    { name: 'Prospection SaaS T1', progress: 65, status: 'active', sdr: 'Sales-Hunter', sent: 450, replies: 83 },
-    { name: 'Pipeline Entreprises', progress: 42, status: 'active', sdr: 'Lead-Gen-Pro', sent: 320, replies: 61 },
-    { name: 'Batch Y Combinator', progress: 88, status: 'active', sdr: 'Startup-Ninja', sent: 580, replies: 112 },
-  ];
+  // MBK: Fetch real data from API
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch dashboard stats
+        const statsResponse = await dashboardService.getStats();
+        if (statsResponse.success) {
+          const statsData = statsResponse.data;
+          setStats([
+            { 
+              label: 'Campagnes actives', 
+              value: String(statsData.activeCampaigns || 0), 
+              change: `${statsData.totalCampaigns || 0} campagnes au total`, 
+              trending: statsData.activeCampaigns > 0, 
+              icon: Rocket 
+            },
+            { 
+              label: 'Rendez-vous réservés', 
+              value: String(statsData.meetingsCount || 0), 
+              change: 'Total des rendez-vous', 
+              trending: statsData.meetingsCount > 0, 
+              icon: Calendar 
+            },
+            { 
+              label: 'Taux de réponse', 
+              value: statsData.responseRate || '0%', 
+              change: 'Taux moyen de réponse', 
+              trending: parseFloat(statsData.responseRate || '0') > 0, 
+              icon: Mail 
+            },
+            { 
+              label: 'Crédits disponibles', 
+              value: String(statsData.credits || 0), 
+              change: 'Crédits restants', 
+              trending: false, 
+              icon: Bot 
+            },
+          ]);
+        }
+        
+        // Fetch activities
+        const activitiesResponse = await dashboardService.getActivities();
+        if (activitiesResponse.success) {
+          const activitiesData = activitiesResponse.data || [];
+          // Format activities with relative time
+          const formatted = activitiesData.map((activity: any) => ({
+            time: formatRelativeTime(new Date(activity.time)),
+            action: activity.action,
+            type: activity.type
+          }));
+          setActivities(formatted);
+        }
+        
+        // Fetch active campaigns
+        const campaignsResponse = await campaigns.list('ACTIVE');
+        if (campaignsResponse.success) {
+          setActiveCampaigns(campaignsResponse.data || []);
+        }
+        
+        // Generate chart data from activities (placeholder)
+        // TODO: Get real chart data from API
+        setChartData([]);
+        
+      } catch (error: any) {
+        console.error('Error loading dashboard data:', error);
+        toast.error('Erreur lors du chargement des données');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, []);
   
-  const chartData = [
-    { date: 'Jan 1', meetings: 3 },
-    { date: 'Jan 8', meetings: 5 },
-    { date: 'Jan 15', meetings: 7 },
-    { date: 'Jan 22', meetings: 12 },
-    { date: 'Jan 29', meetings: 15 },
-    { date: 'Feb 5', meetings: 18 },
-    { date: 'Feb 12', meetings: 23 },
-  ];
+  const formatRelativeTime = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffMins < 60) {
+      return `Il y a ${diffMins} minute${diffMins > 1 ? 's' : ''}`;
+    } else if (diffHours < 24) {
+      return `Il y a ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
+    } else {
+      return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+    }
+  };
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6">
@@ -75,8 +161,13 @@ export default function DashboardHome() {
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {activities.map((activity, i) => (
+            {activities.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>Aucune activité récente</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {activities.map((activity, i) => (
                 <div key={i} className="flex items-start gap-4 pb-4 border-b last:border-0">
                   <div className={`w-2 h-2 rounded-full mt-2 ${
                     activity.type === 'success' ? 'bg-success' : 'bg-accent'
@@ -90,7 +181,8 @@ export default function DashboardHome() {
                   </Button>
                 </div>
               ))}
-            </div>
+              </div>
+            )}
           </CardContent>
         </Card>
         
@@ -107,8 +199,16 @@ export default function DashboardHome() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {activeCampaigns.map((campaign, i) => (
+            {activeCampaigns.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>Aucune campagne active</p>
+                <Button className="mt-4" variant="outline" asChild>
+                  <a href="/dashboard/campaigns">Créer une campagne</a>
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {activeCampaigns.map((campaign, i) => (
                 <div key={i} className="p-4 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium text-sm">{campaign.name}</h4>
@@ -131,7 +231,8 @@ export default function DashboardHome() {
                 <Rocket className="w-4 h-4 mr-2" />
                 Create Campaign
               </Button>
-            </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -149,9 +250,14 @@ export default function DashboardHome() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
+          {chartData.length === 0 ? (
+            <div className="h-80 flex items-center justify-center text-gray-500">
+              <p>Aucune donnée disponible</p>
+            </div>
+          ) : (
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="date" stroke="#9ca3af" />
                 <YAxis stroke="#9ca3af" />
@@ -170,9 +276,10 @@ export default function DashboardHome() {
                   dot={{ fill: '#1E40AF', r: 6 }}
                   activeDot={{ r: 8 }}
                 />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

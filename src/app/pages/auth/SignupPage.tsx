@@ -5,7 +5,7 @@ import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { Checkbox } from '@/app/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
-import { Brain, Loader2, Mail, User, Building, Check } from 'lucide-react';
+import { Brain, Loader2, Mail, User, Building, Check, Phone } from 'lucide-react';
 import { signUpWithMetadata, signInWithGoogle, signInWithOutlook } from '@/services/authService';
 import { toast } from 'sonner';
 
@@ -14,7 +14,13 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [outlookLoading, setOutlookLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    company: '',
+  });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,17 +31,40 @@ export default function SignupPage() {
       return;
     }
     
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+      toast.error('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+    
+    // Validate phone number format (basic validation)
+    const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/;
+    if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
+      toast.error('Veuillez entrer un numéro de téléphone valide');
+      return;
+    }
+    
     setLoading(true);
     
     try {
+      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+      
       const result = await signUpWithMetadata({
-        email: email,
+        email: formData.email,
+        fullName: fullName,
+        phone: formData.phone,
+        company: formData.company || undefined,
       });
       
       if (result.success) {
         toast.success(result.message);
-        localStorage.setItem('verification_email', email);
-        navigate(`/verify-code?email=${encodeURIComponent(email)}`);
+        // Store form data for later use
+        localStorage.setItem('verification_email', formData.email);
+        localStorage.setItem('signup_data', JSON.stringify({
+          fullName,
+          phone: formData.phone,
+          company: formData.company,
+        }));
+        navigate(`/verify-code?email=${encodeURIComponent(formData.email)}`);
       } else {
         toast.error(result.message);
       }
@@ -154,23 +183,90 @@ export default function SignupPage() {
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="firstName">Prénom *</Label>
+                <div className="relative mt-1">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="Jean"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                    required
+                    className="pl-10"
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="lastName">Nom *</Label>
+                <div className="relative mt-1">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Dupont"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                    required
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+            </div>
+            
             <div>
-              <Label htmlFor="email">Email professionnel</Label>
+              <Label htmlFor="email">Email professionnel *</Label>
               <div className="relative mt-1">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="vous@entreprise.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   required
                   className="pl-10"
-                  autoFocus
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="phone">Numéro de téléphone *</Label>
+              <div className="relative mt-1">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+33 6 12 34 56 78"
+                  value={formData.phone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  required
+                  className="pl-10"
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Nous vous enverrons un code de vérification
+                Format: +33 6 12 34 56 78 ou 06 12 34 56 78
+              </p>
+            </div>
+            
+            <div>
+              <Label htmlFor="company">Entreprise (optionnel)</Label>
+              <div className="relative mt-1">
+                <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  id="company"
+                  type="text"
+                  placeholder="Nom de votre entreprise"
+                  value={formData.company}
+                  onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Nous vous enverrons un code de vérification à 6 chiffres par email
               </p>
             </div>
             
