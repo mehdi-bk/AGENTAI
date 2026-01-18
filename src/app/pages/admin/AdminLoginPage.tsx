@@ -81,9 +81,9 @@ export default function AdminLoginPage() {
                         <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
                             <Lock className="w-8 h-8 text-primary" />
                         </div>
-                        <CardTitle className="text-2xl">Authentification à Deux Facteurs</CardTitle>
+                        <CardTitle className="text-2xl">Vérification en deux étapes</CardTitle>
                         <p className="text-sm text-gray-600">
-                            Entrez le code à 6 chiffres depuis votre application d'authentification
+                            Entrez le code à 6 chiffres de votre application d'authentification
                         </p>
                     </CardHeader>
                     <CardContent>
@@ -127,12 +127,16 @@ export default function AdminLoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
             <Card className="w-full max-w-md shadow-lg">
                 <CardHeader className="text-center space-y-4">
-                    <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Shield className="w-8 h-8 text-primary" />
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="w-16"></div>
+                        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                            <Shield className="w-8 h-8 text-primary" />
+                        </div>
+                        <div className="w-16"></div>
                     </div>
-                    <CardTitle className="text-2xl">Panneau d'Administration</CardTitle>
+                    <CardTitle className="text-2xl">Connexion Admin</CardTitle>
                     <p className="text-sm text-gray-600">
-                        Connectez-vous pour accéder au panneau admin
+                        Accès réservé aux administrateurs
                     </p>
                 </CardHeader>
                 <CardContent>

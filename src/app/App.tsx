@@ -11,6 +11,12 @@ import OnboardingRoute from '@/app/components/OnboardingRoute';
 
 // Marketing
 import LandingPage from '@/app/pages/LandingPage';
+import PrivacyPolicyPage from '@/app/pages/PrivacyPolicyPage';
+import TermsOfServicePage from '@/app/pages/TermsOfServicePage';
+import CareersPage from '@/app/pages/CareersPage';
+import ApplicationPage from '@/app/pages/ApplicationPage';
+import BlogPage from '@/app/pages/BlogPage';
+import BlogPostPage from '@/app/pages/BlogPostPage';
 
 // Auth
 import LoginPage from '@/app/pages/auth/LoginPage';
@@ -49,7 +55,13 @@ export default function App() {
         <Routes>
           {/* Marketing */}
           <Route path="/" element={<LandingPage />} />
-          
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path="/careers" element={<CareersPage />} />
+          <Route path="/careers/apply" element={<ApplicationPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
+
           {/* Auth */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -63,7 +75,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/debug-session" element={<SessionDebugPage />} />
           <Route path="/account-management" element={<AccountManagementPage />} />
-          
+
           {/* Dashboard - Protected */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
@@ -80,10 +92,10 @@ export default function App() {
             <Route path="integrations" element={<IntegrationsPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
-          
+
           {/* Admin Login - Public */}
           <Route path="/admin/login" element={<AdminLoginPage />} />
-          
+
           {/* Admin - Protected */}
           <Route path="/admin" element={
             <AdminProtectedRoute>

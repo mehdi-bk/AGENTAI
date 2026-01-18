@@ -153,8 +153,8 @@ export default function DashboardLayout() {
     { name: 'Campagnes', href: '/dashboard/campaigns', icon: Rocket },
     { name: 'Prospects', href: '/dashboard/prospects', icon: Users },
     { name: 'Rendez-vous', href: '/dashboard/meetings', icon: Calendar },
-    { name: 'Analytique', href: '/dashboard/analytics', icon: BarChart3 },
-    { name: 'Paramètres agents', href: '/dashboard/ai-sdr-settings', icon: Bot },
+    { name: 'Analyses', href: '/dashboard/analytics', icon: BarChart3 },
+    { name: 'IA SDR', href: '/dashboard/ai-sdr-settings', icon: Bot },
     { name: 'Intégrations', href: '/dashboard/integrations', icon: Plug },
     { name: 'Paramètres', href: '/dashboard/settings', icon: Settings },
   ];
@@ -222,7 +222,7 @@ export default function DashboardLayout() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Se déconnecter
+                  Déconnexion
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -246,7 +246,7 @@ export default function DashboardLayout() {
               {/* Message de bienvenue */}
               <div className="hidden md:block">
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Bonjour {userName} !
+                  Bienvenue, {userName} !
                 </h2>
               </div>
               
@@ -254,7 +254,7 @@ export default function DashboardLayout() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   type="search"
-                  placeholder="Search..."
+                  placeholder="Rechercher..."
                   className="pl-10 bg-gray-50 border-gray-200"
                 />
               </div>
@@ -286,20 +286,20 @@ export default function DashboardLayout() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
                     <Settings className="w-4 h-4 mr-2" />
-                    Profile Settings
+                    Paramètres du profil
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
                     <CreditCard className="w-4 h-4 mr-2" />
-                    Billing
+                    Facturation
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => window.open('https://help.aisdr.com', '_blank')}>
                     <Bell className="w-4 h-4 mr-2" />
-                    Help Center
+                    Centre d'aide
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
+                    Déconnexion
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

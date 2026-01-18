@@ -48,21 +48,20 @@ export default function AdminLayout() {
               <span className="text-lg font-bold">Admin Panel</span>
             </div>
           </div>
-          
+
           <nav className="flex-1 px-4 py-4 space-y-1">
             {navigation.map((item) => {
-              const isActive = location.pathname === item.href || 
-                              (item.href !== '/admin' && location.pathname.startsWith(item.href));
-              
+              const isActive = location.pathname === item.href ||
+                (item.href !== '/admin' && location.pathname.startsWith(item.href));
+
               return (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-primary text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive
+                    ? 'bg-primary text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                 >
                   <item.icon className="w-5 h-5 mr-3" />
                   {item.name}
@@ -70,7 +69,7 @@ export default function AdminLayout() {
               );
             })}
           </nav>
-          
+
           <div className="p-4 border-t">
             <Button
               variant="outline"
@@ -104,22 +103,21 @@ export default function AdminLayout() {
                 <X className="w-5 h-5" />
               </Button>
             </div>
-            
+
             <nav className="flex-1 px-4 py-4 space-y-1">
               {navigation.map((item) => {
-                const isActive = location.pathname === item.href || 
-                                (item.href !== '/admin' && location.pathname.startsWith(item.href));
-                
+                const isActive = location.pathname === item.href ||
+                  (item.href !== '/admin' && location.pathname.startsWith(item.href));
+
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-primary text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive
+                      ? 'bg-primary text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                      }`}
                   >
                     <item.icon className="w-5 h-5 mr-3" />
                     {item.name}
@@ -127,7 +125,7 @@ export default function AdminLayout() {
                 );
               })}
             </nav>
-            
+
             <div className="p-4 border-t">
               <Button
                 variant="outline"
@@ -160,7 +158,7 @@ export default function AdminLayout() {
               </div>
               <span className="text-lg font-bold">Admin Panel</span>
             </div>
-            <div className="w-9" /> {/* Spacer */}
+            <div className="w-8"></div>
           </div>
         </header>
 
@@ -168,8 +166,8 @@ export default function AdminLayout() {
         <header className="hidden md:block bg-white border-b sticky top-0 z-40">
           <div className="px-6 py-4 flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-semibold">Panneau d'Administration</h1>
-              <p className="text-sm text-gray-600">Gestion sécurisée du système</p>
+              <h1 className="text-xl font-semibold">Panneau d'administration</h1>
+              <p className="text-sm text-gray-600">Gestion des clients, factures et codes promo</p>
             </div>
           </div>
         </header>

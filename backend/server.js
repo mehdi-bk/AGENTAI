@@ -44,6 +44,8 @@ import refundRoutes from './routes/refunds.js';
 import promoCodeRoutes from './routes/promoCodes.js';
 import dashboardRoutes from './routes/dashboard.js';
 import clientDashboardRoutes from './routes/clientDashboard.js';
+import careersRoutes from './routes/careers.js';
+import careersRoutes from './routes/careers.js';
 
 // Configuration
 dotenv.config();
@@ -279,6 +281,13 @@ app.post('/api/clients/sync', async (req, res) => {
 // ============================================
 
 app.use('/api/client', clientDashboardRoutes);
+
+// ============================================
+// ROUTES CAREERS (Public)
+// MBK: Public routes for job applications
+// ============================================
+
+app.use('/api/careers', careersRoutes);
 
 // ============================================
 // ROUTES PROTÉGÉES ADMIN

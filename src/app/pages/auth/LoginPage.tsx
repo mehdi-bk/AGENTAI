@@ -105,7 +105,7 @@ export default function LoginPage() {
             <span className="text-xl font-bold">LeadFlow</span>
           </Link>
           
-          <h1 className="text-3xl font-bold mb-2">Bienvenue</h1>
+          <h1 className="text-3xl font-bold mb-2">Connexion</h1>
           <p className="text-gray-600 mb-4">Entrez votre email pour recevoir un code de vérification</p>
           
           {/* Bouton pour nettoyer les sessions */}
@@ -133,7 +133,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="vous@exemple.com"
+                  placeholder="vous@entreprise.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -142,7 +142,7 @@ export default function LoginPage() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Nous vous enverrons un code de vérification à 6 chiffres
+                Nous vous enverrons un code de vérification par email
               </p>
             </div>
             
@@ -167,10 +167,10 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Envoi du code...
+                  Chargement...
                 </>
               ) : (
-                'Continuer avec Email'
+                'Se connecter'
               )}
             </Button>
             
@@ -179,7 +179,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">or</span>
+                <span className="px-2 bg-white text-gray-500">ou</span>
               </div>
             </div>
             
@@ -193,7 +193,7 @@ export default function LoginPage() {
               {googleLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Connexion...
+                  Chargement...
                 </>
               ) : (
                 <>
@@ -218,7 +218,7 @@ export default function LoginPage() {
               {outlookLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Connexion...
+                  Chargement...
                 </>
               ) : (
                 <>
@@ -232,7 +232,7 @@ export default function LoginPage() {
           </form>
           
           <p className="text-center text-sm text-gray-600 mt-8">
-            Pas encore de compte?{' '}
+            Pas encore de compte ?{' '}
             <Link to="/signup" className="text-primary font-medium hover:underline">
               S'inscrire
             </Link>
@@ -242,22 +242,22 @@ export default function LoginPage() {
       
       {/* Right Side - Gradient with Value Prop */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-secondary to-accent items-center justify-center p-12">
-        <div className="max-w-lg text-white">
-          <h2 className="text-4xl font-bold mb-6">Transformez vos prospects en rendez-vous</h2>
-          <p className="text-xl mb-8 text-white/90">
-            Notre IA recherche et personnalise chaque approche, en réservant des rendez-vous automatiquement.
-          </p>
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-            <p className="italic mb-4">"Le meilleur outil LeadFlow que nous ayons jamais utilisé. Les taux de réponse ont augmenté de 300%."</p>
-            <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-white/20 mr-3"></div>
-              <div>
-                <p className="font-semibold">Alex Martinez</p>
-                <p className="text-sm text-white/80">VP Sales, TechStartup</p>
+          <div className="max-w-lg text-white">
+            <h2 className="text-4xl font-bold mb-6">Rejoignez 100+ Entreprises</h2>
+            <p className="text-xl mb-8 text-white/90">
+              Commencez à réserver plus de rendez-vous avec une prospection alimentée par l'IA qui fonctionne vraiment.
+            </p>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+              <p className="italic mb-4">"LeadFlow a complètement transformé notre prospection. Nous réservons 3x plus de rendez-vous qu'avant."</p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-white/20 mr-3"></div>
+                <div>
+                  <p className="font-semibold">Sarah Johnson</p>
+                  <p className="text-sm text-white/80">VP des Ventes, TechCorp Inc</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
       </div>
     </div>
   );

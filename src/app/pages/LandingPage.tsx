@@ -2,11 +2,11 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
-import { Search, Sparkles, Mail, Phone, Upload, Brain, Send, CalendarCheck, CheckCircle, ArrowRight } from 'lucide-react';
+import { Search, Sparkles, Mail, Upload, Brain, Send, CalendarCheck, ArrowRight, TrendingUp, Rocket, Bot, Activity } from 'lucide-react';
 
 export default function LandingPage() {
   const companyLogos = ['Entreprise A', 'Entreprise B', 'Entreprise C', 'Entreprise D', 'Entreprise E'];
-  
+
   const features = [
     {
       icon: <Search className="w-8 h-8 text-primary" />,
@@ -24,14 +24,14 @@ export default function LandingPage() {
       description: 'Coordonnez la prospection sur tous les canaux de manière transparente'
     }
   ];
-  
+
   const howItWorks = [
     { icon: <Upload className="w-6 h-6" />, title: 'Téléchargez votre liste de prospects', step: 1 },
     { icon: <Brain className="w-6 h-6" />, title: 'L\'IA recherche chaque prospect', step: 2 },
     { icon: <Send className="w-6 h-6" />, title: 'Prospection personnalisée envoyée', step: 3 },
     { icon: <CalendarCheck className="w-6 h-6" />, title: 'Rendez-vous réservés automatiquement', step: 4 }
   ];
-  
+
   const pricingPlans = [
     {
       name: 'Discovery',
@@ -39,6 +39,7 @@ export default function LandingPage() {
       price: '150€',
       period: '/mois',
       badge: 'Offre limitée aux 50 premiers',
+      cta: 'Choisir cette offre',
       features: ['✉️ 1 500 Emails IA / mois', '📞 30 Appels IA (Test & Closing)', '🔍 250 Leads qualifiés offerts', '🚫 Voix Standard (Pas de clonage)']
     },
     {
@@ -47,6 +48,7 @@ export default function LandingPage() {
       price: '499€',
       period: '/mois',
       badge: 'Le meilleur rapport qualité/prix',
+      cta: 'Démarrer maintenant',
       features: ['✉️ 10 000 Emails IA / mois', '📞 500 Appels IA / mois', '🔍 2 000 Leads qualifiés offerts', '🎙️ Clonage de Voix (Votre voix par l\'IA)', '📅 Prise de RDV automatique Agenda'],
       popular: true
     },
@@ -56,6 +58,7 @@ export default function LandingPage() {
       price: '1 290€',
       period: '/mois',
       badge: 'Performance maximale',
+      cta: 'Passer à l\'échelle',
       features: ['✉️ Emails Illimités (Fair use)', '📞 2 000 Appels IA / mois', '🔍 Scraping Illimité', '🧠 IA Avancée (Gestion barrages secrétaires)', '👤 Account Manager dédié']
     },
     {
@@ -64,10 +67,11 @@ export default function LandingPage() {
       price: 'Sur Devis',
       period: '',
       badge: 'Prix adapté au volume',
+      cta: 'Contacter l\'équipe',
       features: ['📞 Volume d\'appels Illimité (+ de 10k/mois)', '🏢 Infrastructure Dédiée (Serveurs privés)', '🔌 Accès API complet', '🏷️ Marque Blanche (Pour revendeurs)', '🔐 Sécurité Renforcée (ISO/RGPD Custom)']
     }
   ];
-  
+
   const testimonials = [
     {
       name: 'Sarah Johnson',
@@ -82,7 +86,7 @@ export default function LandingPage() {
       quote: 'La personnalisation est incroyable. Nos prospects répondent en pensant que c\'est une vraie personne.'
     }
   ];
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       {/* Header */}
@@ -107,7 +111,7 @@ export default function LandingPage() {
           </nav>
         </div>
       </header>
-      
+
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20 md:py-32">
         <div className="text-center max-w-4xl mx-auto">
@@ -128,7 +132,7 @@ export default function LandingPage() {
             </Button>
           </div>
           <p className="text-gray-500 mt-6">Approuvé par plus de 100 entreprises B2B</p>
-          
+
           {/* Logo Cloud */}
           <div className="flex flex-wrap items-center justify-center gap-8 mt-12 opacity-50">
             {companyLogos.map((logo, i) => (
@@ -138,18 +142,237 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-        
-        {/* Hero Image */}
-        <div className="mt-16 rounded-2xl overflow-hidden shadow-2xl border">
-          <div className="bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 p-8 aspect-video flex items-center justify-center">
-            <div className="text-center">
-              <Brain className="w-24 h-24 text-primary mx-auto mb-4" />
-              <p className="text-gray-600">Aperçu du tableau de bord</p>
+
+        {/* Dashboard Preview */}
+        <div className="mt-16 rounded-2xl overflow-hidden shadow-2xl border bg-white">
+          <div className="bg-gradient-to-r from-primary to-secondary p-4 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Brain className="w-5 h-5 text-white" />
+              <span className="text-white font-semibold">Tableau de bord LeadFlow</span>
+            </div>
+            <div className="text-white text-sm">Exemple de compte client</div>
+          </div>
+
+          <div className="p-6 bg-gray-50">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white rounded-lg p-4 border shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Rocket className="w-5 h-5 text-primary" />
+                  </div>
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                </div>
+                <div className="text-2xl font-bold mb-1">12</div>
+                <div className="text-xs text-gray-600 mb-1">Campagnes actives</div>
+                <div className="text-xs text-green-600">+3 cette semaine</div>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 border shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 rounded-lg bg-secondary/10">
+                    <CalendarCheck className="w-5 h-5 text-secondary" />
+                  </div>
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                </div>
+                <div className="text-2xl font-bold mb-1">47</div>
+                <div className="text-xs text-gray-600 mb-1">Rendez-vous réservés</div>
+                <div className="text-xs text-green-600">+12 ce mois</div>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 border shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 rounded-lg bg-accent/10">
+                    <Mail className="w-5 h-5 text-accent" />
+                  </div>
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                </div>
+                <div className="text-2xl font-bold mb-1">34.2%</div>
+                <div className="text-xs text-gray-600 mb-1">Taux de réponse</div>
+                <div className="text-xs text-green-600">+5.1% vs mois dernier</div>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 border shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Bot className="w-5 h-5 text-primary" />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold mb-1">8/10</div>
+                <div className="text-xs text-gray-600 mb-1">Agents IA actifs</div>
+                <div className="text-xs text-gray-500">2 en pause</div>
+              </div>
+            </div>
+
+            {/* Chart and Activity */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Performance Chart */}
+              <div className="bg-white rounded-lg p-4 border shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-sm">Performance des campagnes (7 derniers jours)</h3>
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-primary"></div>
+                      <span>Emails</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-secondary"></div>
+                      <span>Réponses</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="h-40 flex items-end justify-between gap-1.5">
+                  <div className="flex-1 flex flex-col items-center h-full">
+                    <div className="w-full flex flex-col justify-end gap-1 mb-2" style={{ height: '100%' }}>
+                      <div className="w-full bg-secondary rounded-t" style={{ height: '45%' }}></div>
+                      <div className="w-full bg-primary rounded-t" style={{ height: '60%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">Lun</span>
+                    <span className="text-xs text-gray-400">24</span>
+                  </div>
+                  <div className="flex-1 flex flex-col items-center h-full">
+                    <div className="w-full flex flex-col justify-end gap-1 mb-2" style={{ height: '100%' }}>
+                      <div className="w-full bg-secondary rounded-t" style={{ height: '55%' }}></div>
+                      <div className="w-full bg-primary rounded-t" style={{ height: '75%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">Mar</span>
+                    <span className="text-xs text-gray-400">31</span>
+                  </div>
+                  <div className="flex-1 flex flex-col items-center h-full">
+                    <div className="w-full flex flex-col justify-end gap-1 mb-2" style={{ height: '100%' }}>
+                      <div className="w-full bg-secondary rounded-t" style={{ height: '65%' }}></div>
+                      <div className="w-full bg-primary rounded-t" style={{ height: '85%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">Mer</span>
+                    <span className="text-xs text-gray-400">42</span>
+                  </div>
+                  <div className="flex-1 flex flex-col items-center h-full">
+                    <div className="w-full flex flex-col justify-end gap-1 mb-2" style={{ height: '100%' }}>
+                      <div className="w-full bg-secondary rounded-t" style={{ height: '50%' }}></div>
+                      <div className="w-full bg-primary rounded-t" style={{ height: '70%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">Jeu</span>
+                    <span className="text-xs text-gray-400">28</span>
+                  </div>
+                  <div className="flex-1 flex flex-col items-center h-full">
+                    <div className="w-full flex flex-col justify-end gap-1 mb-2" style={{ height: '100%' }}>
+                      <div className="w-full bg-secondary rounded-t" style={{ height: '70%' }}></div>
+                      <div className="w-full bg-primary rounded-t" style={{ height: '90%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">Ven</span>
+                    <span className="text-xs text-gray-400">48</span>
+                  </div>
+                  <div className="flex-1 flex flex-col items-center h-full">
+                    <div className="w-full flex flex-col justify-end gap-1 mb-2" style={{ height: '100%' }}>
+                      <div className="w-full bg-secondary rounded-t" style={{ height: '35%' }}></div>
+                      <div className="w-full bg-primary rounded-t" style={{ height: '55%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">Sam</span>
+                    <span className="text-xs text-gray-400">18</span>
+                  </div>
+                  <div className="flex-1 flex flex-col items-center h-full">
+                    <div className="w-full flex flex-col justify-end gap-1 mb-2" style={{ height: '100%' }}>
+                      <div className="w-full bg-secondary rounded-t" style={{ height: '30%' }}></div>
+                      <div className="w-full bg-primary rounded-t" style={{ height: '45%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">Dim</span>
+                    <span className="text-xs text-gray-400">14</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Activity */}
+              <div className="bg-white rounded-lg p-4 border shadow-sm">
+                <h3 className="font-semibold mb-4 text-sm flex items-center gap-2">
+                  <Activity className="w-4 h-4" />
+                  Activité récente
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 text-xs">
+                    <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5"></div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">Rendez-vous réservé</p>
+                      <p className="text-gray-500">Sarah Johnson - TechCorp Inc</p>
+                      <p className="text-gray-400 text-xs">Il y a 2 heures</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 text-xs">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5"></div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">Email envoyé</p>
+                      <p className="text-gray-500">Campagne "Q1 Outreach" - 15 emails</p>
+                      <p className="text-gray-400 text-xs">Il y a 4 heures</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 text-xs">
+                    <div className="w-2 h-2 rounded-full bg-purple-500 mt-1.5"></div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">Réponse reçue</p>
+                      <p className="text-gray-500">Michael Chen - StartupXYZ</p>
+                      <p className="text-gray-400 text-xs">Il y a 6 heures</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 text-xs">
+                    <div className="w-2 h-2 rounded-full bg-orange-500 mt-1.5"></div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">Campagne démarrée</p>
+                      <p className="text-gray-500">"Enterprise Outreach Q1"</p>
+                      <p className="text-gray-400 text-xs">Hier</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Active Campaigns */}
+            <div className="mt-4 bg-white rounded-lg p-4 border shadow-sm">
+              <h3 className="font-semibold mb-4 text-sm">Campagnes actives</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div>
+                      <p className="font-medium text-gray-900">Q1 Enterprise Outreach</p>
+                      <p className="text-gray-500">245 prospects • 12 rendez-vous</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-gray-900">87%</p>
+                    <p className="text-gray-500">Taux de réponse</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div>
+                      <p className="font-medium text-gray-900">SaaS Startup Campaign</p>
+                      <p className="text-gray-500">180 prospects • 8 rendez-vous</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-gray-900">42%</p>
+                    <p className="text-gray-500">Taux de réponse</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div>
+                      <p className="font-medium text-gray-900">Healthcare Vertical</p>
+                      <p className="text-gray-500">92 prospects • 5 rendez-vous</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-gray-900">28%</p>
+                    <p className="text-gray-500">Taux de réponse</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
-      
+
       {/* Problem Section - Comparison */}
       <section className="bg-gradient-to-br from-gray-50 to-white py-20">
         <div className="container mx-auto px-6">
@@ -157,7 +380,7 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4">Plus besoin d'engager de commerciaux</h2>
             <p className="text-xl text-gray-600">Comparez le coût et l'efficacité</p>
           </div>
-          
+
           <div className="max-w-5xl mx-auto">
             <div className="grid md:grid-cols-2 gap-8">
               {/* Commercial Humain */}
@@ -187,7 +410,7 @@ export default function LandingPage() {
                   </div>
                 </CardContent>
               </Card>
-              
+
               {/* LeadFlow AI */}
               <Card className="border-2 border-primary shadow-lg relative overflow-hidden">
                 <div className="absolute top-4 right-4 bg-gradient-to-r from-primary to-secondary text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -222,7 +445,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      
+
       {/* Features Section */}
       <section id="features" className="container mx-auto px-6 py-20">
         <div className="text-center mb-16">
@@ -241,7 +464,7 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
-      
+
       {/* How It Works */}
       <section id="how-it-works" className="bg-muted/50 py-20">
         <div className="container mx-auto px-6">
@@ -267,7 +490,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      
+
       {/* Pricing */}
       <section id="pricing" className="container mx-auto px-6 py-20">
         <div className="text-center mb-16">
@@ -306,7 +529,7 @@ export default function LandingPage() {
                 </ul>
                 <Link to="/signup">
                   <Button className={`w-full ${plan.popular ? 'bg-gradient-to-r from-primary to-secondary' : ''}`}>
-                    {plan.name === 'Entreprise' ? 'Contacter l\'équipe' : plan.name === 'Discovery' ? 'Choisir cette offre' : plan.name === 'Business' ? 'Démarrer maintenant' : 'Passer à l\'échelle'}
+                    {plan.cta}
                   </Button>
                 </Link>
               </CardContent>
@@ -314,7 +537,7 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
-      
+
       {/* Audio Demo Section */}
       <section className="container mx-auto px-6 py-20">
         <div className="text-center mb-16">
@@ -340,7 +563,7 @@ export default function LandingPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="hover:shadow-lg transition-shadow">
             <CardContent className="p-8">
               <div className="flex items-center mb-4">
@@ -361,7 +584,7 @@ export default function LandingPage() {
           </Card>
         </div>
       </section>
-      
+
       {/* FAQ Section */}
       <section className="bg-muted/50 py-20">
         <div className="container mx-auto px-6">
@@ -376,14 +599,14 @@ export default function LandingPage() {
                 <p className="text-gray-700">Oui, en B2B (professionnel à professionnel), le démarchage est autorisé. LeadFlow AI respecte les listes d'opposition et les horaires légaux.</p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold mb-3">La voix fait-elle "Robot" ?</h3>
                 <p className="text-gray-700">Non. Avec notre offre Business, nous utilisons les technologies de synthèse vocale les plus avancées (latence &lt; 800ms) pour une conversation fluide.</p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold mb-3">Puis-je utiliser ma propre voix ?</h3>
@@ -393,7 +616,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      
+
       {/* Social Proof */}
       <section className="py-20">
         <div className="container mx-auto px-6">
@@ -416,7 +639,7 @@ export default function LandingPage() {
               </Card>
             ))}
           </div>
-          
+
           {/* Metrics */}
           <div className="grid md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
             <div className="text-center">
@@ -434,7 +657,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      
+
       {/* Footer */}
       <footer className="border-t bg-white py-12">
         <div className="container mx-auto px-6">
@@ -460,15 +683,15 @@ export default function LandingPage() {
               <h4 className="font-semibold mb-4">Entreprise</h4>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li><a href="#" className="hover:text-primary">À propos</a></li>
-                <li><a href="#" className="hover:text-primary">Blog</a></li>
-                <li><a href="#" className="hover:text-primary">Carrières</a></li>
+                <li><Link to="/blog" className="hover:text-primary">Blog</Link></li>
+                <li><Link to="/careers" className="hover:text-primary">Carrières</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Légal</h4>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-primary">Politique de confidentialité</a></li>
-                <li><a href="#" className="hover:text-primary">Conditions d'utilisation</a></li>
+                <li><Link to="/privacy-policy" className="hover:text-primary">Politique de confidentialité</Link></li>
+                <li><Link to="/terms-of-service" className="hover:text-primary">Conditions d'utilisation</Link></li>
               </ul>
             </div>
           </div>
