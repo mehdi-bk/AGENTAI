@@ -5,6 +5,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/app/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import ProtectedRoute from '@/app/components/ProtectedRoute';
 import AdminProtectedRoute from '@/app/components/AdminProtectedRoute';
 import OnboardingRoute from '@/app/components/OnboardingRoute';
@@ -52,7 +53,8 @@ export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
+        <LanguageProvider>
+          <Routes>
           {/* Marketing */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -110,6 +112,7 @@ export default function App() {
           </Route>
         </Routes>
         <Toaster />
+        </LanguageProvider>
       </AuthProvider>
     </Router>
   );

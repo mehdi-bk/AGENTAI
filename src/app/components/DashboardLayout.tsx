@@ -14,6 +14,8 @@ import {
 import { Avatar, AvatarFallback } from '@/app/components/ui/avatar';
 import { Alert, AlertDescription } from '@/app/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitcher from '@/app/components/LanguageSwitcher';
 import { checkOnboardingStatus } from '@/services/authService';
 
 export default function DashboardLayout() {
@@ -22,6 +24,7 @@ export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
+  const { t } = useLanguage();
   
   const isDev = import.meta.env.VITE_DEV_MODE === 'true';
   const devBypass = isDev && localStorage.getItem('dev_bypass_auth') === 'true';
@@ -67,7 +70,7 @@ export default function DashboardLayout() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
+          <p className="text-gray-600">{t('loading')}</p>
         </div>
       </div>
     );
@@ -149,14 +152,15 @@ export default function DashboardLayout() {
   };
   
   const navigation = [
-    { name: 'Tableau de bord', href: '/dashboard/home', icon: Home },
-    { name: 'Campagnes', href: '/dashboard/campaigns', icon: Rocket },
-    { name: 'Prospects', href: '/dashboard/prospects', icon: Users },
-    { name: 'Rendez-vous', href: '/dashboard/meetings', icon: Calendar },
-    { name: 'Analyses', href: '/dashboard/analytics', icon: BarChart3 },
-    { name: 'IA SDR', href: '/dashboard/ai-sdr-settings', icon: Bot },
-    { name: 'Intégrations', href: '/dashboard/integrations', icon: Plug },
-    { name: 'Paramètres', href: '/dashboard/settings', icon: Settings },
+    { name: t('dashboard'), href: '/dashboard/home', icon: Home },
+    { name: t('campaigns'), href: '/dashboard/campaigns', icon: Rocket },
+    { name: t('prospects'), href: '/dashboard/prospects', icon: Users },
+    { name: t('meetings'), href: '/dashboard/meetings', icon: Calendar },
+    { name: t('analytics'), href: '/dashboard/analytics', icon: BarChart3 },
+    { name: t('aiSdrSettings'), href: '/dashboard/ai-sdr-settings', icon: Bot },
+    { name: t('integrations'), href: '/dashboard/integrations', icon: Plug },
+    { name: t('subscription'), href: '/dashboard/settings', icon: CreditCard },
+    { name: t('settings'), href: '/dashboard/settings', icon: Settings },
   ];
   
   return (
@@ -218,11 +222,11 @@ export default function DashboardLayout() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('myAccount')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Déconnexion
+                  {t('logout')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -246,7 +250,7 @@ export default function DashboardLayout() {
               {/* Message de bienvenue */}
               <div className="hidden md:block">
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Bienvenue, {userName} !
+                  {t('welcome')}, {userName} !
                 </h2>
               </div>
               
@@ -254,7 +258,7 @@ export default function DashboardLayout() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   type="search"
-                  placeholder="Rechercher..."
+                  placeholder={t('search')}
                   className="pl-10 bg-gray-50 border-gray-200"
                 />
               </div>
@@ -265,6 +269,8 @@ export default function DashboardLayout() {
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
               </button>
+              
+              <LanguageSwitcher />
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -286,20 +292,20 @@ export default function DashboardLayout() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
                     <Settings className="w-4 h-4 mr-2" />
-                    Paramètres du profil
+                    {t('profileSettings')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
                     <CreditCard className="w-4 h-4 mr-2" />
-                    Facturation
+                    {t('billing')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => window.open('https://help.aisdr.com', '_blank')}>
                     <Bell className="w-4 h-4 mr-2" />
-                    Centre d'aide
+                    {t('helpCenter')}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="w-4 h-4 mr-2" />
-                    Déconnexion
+                    {t('logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

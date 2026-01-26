@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
@@ -12,16 +12,87 @@ import { User, CreditCard, Bell, Code, Building, Loader2, Mail, Calendar, CheckC
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { billingService } from '@/services/billingService';
 
 export default function SettingsPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [billingLoading, setBillingLoading] = useState(false);
+  const plansRef = useRef<HTMLDivElement | null>(null);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     company: '',
     companySize: '',
     industry: '',
+  });
+
+  const planOptions = [
+    {
+      id: 'discovery',
+      name: 'Discovery',
+      priceLabel: '150€ / mois',
+      priceValue: 150,
+      badge: 'Pour démarrer',
+      description: 'Idéal pour tester l’IA et lancer vos premières campagnes.',
+      features: ['1 500 emails IA / mois', '30 appels IA (test & closing)', '250 leads qualifiés offerts'],
+      agents: 1,
+      emails: '1 500',
+      nextBilling: 'Dans 30 jours',
+    },
+    {
+      id: 'business',
+      name: 'Business',
+      priceLabel: '499€ / mois',
+      priceValue: 499,
+      badge: 'Le plus populaire',
+      description: 'Remplace un commercial à mi-temps avec voix clonée.',
+      features: ['10 000 emails IA / mois', '500 appels IA / mois', 'Clonage de voix inclus'],
+      agents: 5,
+      emails: '10 000',
+      nextBilling: 'Dans 30 jours',
+      popular: true,
+    },
+    {
+      id: 'scale',
+      name: 'Scale',
+      priceLabel: '1 290€ / mois',
+      priceValue: 1290,
+      badge: 'Croissance',
+      description: 'Pour les équipes qui industrialisent la prospection multi-canale.',
+      features: ['Emails illimités (fair use)', '2 000 appels IA / mois', 'Account Manager dédié'],
+      agents: 10,
+      emails: 'Illimités (fair use)',
+      nextBilling: 'Dans 30 jours',
+    },
+    {
+      id: 'enterprise',
+      name: 'Entreprise',
+      priceLabel: 'Sur devis',
+      priceValue: null,
+      badge: 'Sur mesure',
+      description: 'Infrastructure dédiée, API complète, sécurité renforcée.',
+      features: ['Appels illimités (10k+/mois)', 'Serveurs privés', 'Accès API complet, marque blanche'],
+      agents: 20,
+      emails: 'Illimités',
+      nextBilling: 'À définir',
+    },
+  ];
+
+  const defaultPlan = {
+    id: 'professional',
+    name: 'Plan Professional',
+    priceLabel: '€1,500 / mois',
+    priceValue: 1500,
+    status: 'Actif',
+    nextBilling: '14 février 2026',
+    agents: 5,
+    emails: '10,000',
+  };
+
+  const [currentPlan, setCurrentPlan] = useState(() => {
+    const saved = localStorage.getItem('currentPlan');
+    return saved ? JSON.parse(saved) : defaultPlan;
   });
 
   useEffect(() => {
@@ -38,6 +109,72 @@ export default function SettingsPage() {
       });
     }
   }, [user]);
+
+  // Après retour de Stripe (success), mettre à jour l'abonnement local depuis le pending
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get('checkout') === 'success';
+    const planId = params.get('plan');
+    if (success && planId) {
+      const pendingRaw = localStorage.getItem('pendingPlanId');
+      if (pendingRaw === planId) {
+        const plan = planOptions.find(p => p.id === planId);
+        if (plan) {
+          savePlan({
+            id: plan.id,
+            name: plan.name,
+            priceLabel: plan.priceLabel,
+            priceValue: plan.priceValue,
+            status: 'Actif',
+            nextBilling: plan.nextBilling,
+            agents: plan.agents,
+            emails: plan.emails,
+          });
+          toast.success('Abonnement mis à jour');
+        }
+      }
+      localStorage.removeItem('pendingPlanId');
+    }
+  }, []);
+
+  const savePlan = (plan: any) => {
+    setCurrentPlan(plan);
+    localStorage.setItem('currentPlan', JSON.stringify(plan));
+    toast.success('Plan mis à jour');
+  };
+
+  const handleChoosePlan = async (planId: string) => {
+    const plan = planOptions.find(p => p.id === planId);
+    if (!plan) return;
+    try {
+      setBillingLoading(true);
+      localStorage.setItem('pendingPlanId', planId);
+      const successUrl = `${window.location.origin}/dashboard/settings?checkout=success&plan=${planId}`;
+      const cancelUrl = `${window.location.origin}/dashboard/settings?checkout=cancel&plan=${planId}`;
+      const url = await billingService.startCheckout(planId, successUrl, cancelUrl);
+      window.location.href = url;
+    } catch (error: any) {
+      toast.error(error.message || 'Erreur lors de la création de la session Stripe');
+      setBillingLoading(false);
+      localStorage.removeItem('pendingPlanId');
+    }
+  };
+
+  const handleCancelPlan = async () => {
+    try {
+      setBillingLoading(true);
+      const returnUrl = `${window.location.origin}/dashboard/settings?portal=return`;
+      const url = await billingService.openPortal(returnUrl);
+      window.location.href = url;
+    } catch (error: any) {
+      toast.error(error.message || 'Erreur lors de l’ouverture du portail Stripe');
+      setBillingLoading(false);
+    }
+  };
+
+  const scrollToPlans = () => {
+    plansRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const handleSave = async () => {
     setLoading(true);
@@ -112,7 +249,7 @@ export default function SettingsPage() {
         <p className="text-gray-600">Manage your account and preferences</p>
       </div>
       
-      <Tabs defaultValue="profile" className="space-y-6">
+      <Tabs defaultValue="billing" className="space-y-6">
         <TabsList>
           <TabsTrigger value="profile">
             <User className="w-4 h-4 mr-2" />
@@ -294,40 +431,88 @@ export default function SettingsPage() {
                 <div className="p-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-xl font-bold mb-1">Plan Professional</h3>
-                      <Badge className="bg-success text-white">
+                      <h3 className="text-xl font-bold mb-1">{currentPlan.name}</h3>
+                      <Badge className={`text-white ${currentPlan.status === 'Actif' ? 'bg-success' : 'bg-gray-400'}`}>
                         <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Actif
+                        {currentPlan.status}
                       </Badge>
                     </div>
                     <div className="text-right">
-                      <p className="text-3xl font-bold text-primary">€1,500</p>
-                      <p className="text-sm text-gray-600">/mois</p>
+                      <p className="text-3xl font-bold text-primary">{currentPlan.priceLabel?.split(' ')[0]}</p>
+                      <p className="text-sm text-gray-600">{currentPlan.priceLabel?.split(' ').slice(1).join(' ')}</p>
                     </div>
                   </div>
                   <Separator className="my-4" />
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600">Prochaine facturation</span>
-                      <span className="font-medium">14 février 2026</span>
+                      <span className="font-medium">{currentPlan.nextBilling}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600">Agents IA inclus</span>
-                      <span className="font-medium">5 agents</span>
+                      <span className="font-medium">{currentPlan.agents} agents</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600">Emails mensuels</span>
-                      <span className="font-medium">10,000</span>
+                      <span className="font-medium">{currentPlan.emails}</span>
                     </div>
                   </div>
                   <div className="mt-6 flex gap-3">
-                    <Button variant="outline" className="flex-1">
+                    <Button variant="outline" className="flex-1" onClick={scrollToPlans} disabled={billingLoading}>
                       Modifier le plan
                     </Button>
-                    <Button variant="outline" className="flex-1 text-error border-error hover:bg-error/10">
+                    <Button variant="outline" className="flex-1 text-error border-error hover:bg-error/10" onClick={handleCancelPlan} disabled={billingLoading}>
                       Annuler l'abonnement
                     </Button>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Plans disponibles */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Changer de plan</CardTitle>
+                <CardDescription>Comparez et sélectionnez l’offre qui correspond à vos besoins</CardDescription>
+              </CardHeader>
+              <CardContent ref={plansRef}>
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {planOptions.map((plan) => (
+                    <div key={plan.name} className="p-4 border rounded-lg hover:shadow-md transition-all bg-white/60">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-lg font-semibold">{plan.name}</h4>
+                            {plan.badge && (
+                              <Badge className={plan.popular ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'}>
+                                {plan.badge}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-primary">{plan.price}</p>
+                        </div>
+                      </div>
+                      <ul className="space-y-1 text-sm text-gray-700 mt-3">
+                        {plan.features.map((feature) => (
+                          <li key={feature} className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-primary" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="mt-4 flex gap-2">
+                        <Button variant={plan.popular ? 'default' : 'outline'} className="flex-1" onClick={() => handleChoosePlan(plan.id)} disabled={billingLoading}>
+                          Choisir ce plan
+                        </Button>
+                        <Button variant="ghost" className="flex-1 text-primary">
+                          En savoir plus
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

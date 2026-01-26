@@ -45,7 +45,9 @@ import promoCodeRoutes from './routes/promoCodes.js';
 import dashboardRoutes from './routes/dashboard.js';
 import clientDashboardRoutes from './routes/clientDashboard.js';
 import careersRoutes from './routes/careers.js';
-import careersRoutes from './routes/careers.js';
+import billingRoutes from './routes/billing.js';
+import proxyApiRoutes from './routes/proxyApi.js';
+import { handleStripeWebhook } from './routes/stripeWebhook.js';
 
 // Configuration
 dotenv.config();
@@ -156,6 +158,10 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Client-Email']
 }));
+
+// ⚠️ WEBHOOK STRIPE EN RAW (AVANT JSON PARSING)
+// Doit être AVANT app.use(express.json()) car Stripe nécessite le body brut
+app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
 
 // Parse JSON avec limite de taille
 app.use(express.json({ limit: '10mb' }));
@@ -288,6 +294,18 @@ app.use('/api/client', clientDashboardRoutes);
 // ============================================
 
 app.use('/api/careers', careersRoutes);
+
+// ============================================
+// ROUTES BILLING (client dashboard, Stripe test)
+// ============================================
+
+app.use('/api/billing', billingRoutes);
+
+// ============================================
+// ROUTES PROXY API (DeepSeek, Instantly)
+// ============================================
+
+app.use('/api/proxy', proxyApiRoutes);
 
 // ============================================
 // ROUTES PROTÉGÉES ADMIN

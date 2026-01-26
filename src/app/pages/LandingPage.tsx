@@ -3,71 +3,74 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { Search, Sparkles, Mail, Upload, Brain, Send, CalendarCheck, ArrowRight, TrendingUp, Rocket, Bot, Activity } from 'lucide-react';
+import LanguageSwitcher from '@/app/components/LanguageSwitcher';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function LandingPage() {
+  const { t } = useLanguage();
   const companyLogos = ['Entreprise A', 'Entreprise B', 'Entreprise C', 'Entreprise D', 'Entreprise E'];
 
   const features = [
     {
       icon: <Search className="w-8 h-8 text-primary" />,
-      title: 'Recherche de prospects par IA',
-      description: 'Analyse automatiquement les sites web, LinkedIn et signaux d\'entreprise'
+      title: t('aiProspectSearch'),
+      description: t('aiProspectSearchDesc')
     },
     {
       icon: <Sparkles className="w-8 h-8 text-secondary" />,
-      title: 'Personnalisation de niveau humain',
-      description: 'Chaque email est rédigé comme par un humain après une recherche approfondie'
+      title: t('humanLevelPersonalization'),
+      description: t('humanLevelPersonalizationDesc')
     },
     {
       icon: <Mail className="w-8 h-8 text-accent" />,
-      title: 'Campagnes Email + Voix',
-      description: 'Coordonnez la prospection sur tous les canaux de manière transparente'
+      title: t('emailVoiceCampaigns'),
+      description: t('emailVoiceCampaignsDesc')
     }
   ];
 
   const howItWorks = [
-    { icon: <Upload className="w-6 h-6" />, title: 'Téléchargez votre liste de prospects', step: 1 },
-    { icon: <Brain className="w-6 h-6" />, title: 'L\'IA recherche chaque prospect', step: 2 },
-    { icon: <Send className="w-6 h-6" />, title: 'Prospection personnalisée envoyée', step: 3 },
-    { icon: <CalendarCheck className="w-6 h-6" />, title: 'Rendez-vous réservés automatiquement', step: 4 }
+    { icon: <Upload className="w-6 h-6" />, title: t('uploadProspectList'), step: 1 },
+    { icon: <Brain className="w-6 h-6" />, title: t('aiResearchProspect'), step: 2 },
+    { icon: <Send className="w-6 h-6" />, title: t('personalizedOutreach'), step: 3 },
+    { icon: <CalendarCheck className="w-6 h-6" />, title: t('automatedMeetings'), step: 4 }
   ];
 
   const pricingPlans = [
     {
-      name: 'Discovery',
-      subtitle: 'Lancement',
+      name: t('discovery'),
+      subtitle: t('launch'),
       price: '150€',
       period: '/mois',
-      badge: 'Offre limitée aux 50 premiers',
-      cta: 'Choisir cette offre',
+      badge: t('limitedOffer'),
+      cta: t('chooseThis'),
       features: ['✉️ 1 500 Emails IA / mois', '📞 30 Appels IA (Test & Closing)', '🔍 250 Leads qualifiés offerts', '🚫 Voix Standard (Pas de clonage)']
     },
     {
-      name: 'Business',
-      subtitle: 'Remplace un commercial à mi-temps',
+      name: t('business'),
+      subtitle: t('replaceHalfSalesRep'),
       price: '499€',
       period: '/mois',
-      badge: 'Le meilleur rapport qualité/prix',
-      cta: 'Démarrer maintenant',
+      badge: t('bestValue'),
+      cta: t('startNow'),
       features: ['✉️ 10 000 Emails IA / mois', '📞 500 Appels IA / mois', '🔍 2 000 Leads qualifiés offerts', '🎙️ Clonage de Voix (Votre voix par l\'IA)', '📅 Prise de RDV automatique Agenda'],
       popular: true
     },
     {
-      name: 'Scale',
-      subtitle: 'Agence - Pour inonder le marché',
+      name: t('scale'),
+      subtitle: t('agencyScale'),
       price: '1 290€',
       period: '/mois',
-      badge: 'Performance maximale',
-      cta: 'Passer à l\'échelle',
+      badge: t('maxPerformance'),
+      cta: t('scaleUp'),
       features: ['✉️ Emails Illimités (Fair use)', '📞 2 000 Appels IA / mois', '🔍 Scraping Illimité', '🧠 IA Avancée (Gestion barrages secrétaires)', '👤 Account Manager dédié']
     },
     {
-      name: 'Entreprise',
-      subtitle: 'Sur Mesure - Grands Comptes et Call Centers',
+      name: t('enterprise'),
+      subtitle: t('customEnterprise'),
       price: 'Sur Devis',
       period: '',
-      badge: 'Prix adapté au volume',
-      cta: 'Contacter l\'équipe',
+      badge: t('customPrice'),
+      cta: t('contactTeam'),
       features: ['📞 Volume d\'appels Illimité (+ de 10k/mois)', '🏢 Infrastructure Dédiée (Serveurs privés)', '🔌 Accès API complet', '🏷️ Marque Blanche (Pour revendeurs)', '🔐 Sécurité Renforcée (ISO/RGPD Custom)']
     }
   ];
@@ -77,7 +80,7 @@ export default function LandingPage() {
       name: 'Sarah Johnson',
       role: 'VP des Ventes',
       company: 'TechCorp Inc',
-      quote: 'LeadFlow a complètement transformé notre prospection. Nous réservons 3x plus de rendez-vous qu\'avant.'
+      quote: t('transformedProspecting') || 'LeadFlow a complètement transformé notre prospection. Nous réservons 3x plus de rendez-vous qu\'avant.'
     },
     {
       name: 'Michael Chen',
@@ -102,12 +105,16 @@ export default function LandingPage() {
             <a href="#features" className="text-gray-600 hover:text-primary transition-colors">Fonctionnalités</a>
             <a href="#how-it-works" className="text-gray-600 hover:text-primary transition-colors">Comment ça marche</a>
             <a href="#pricing" className="text-gray-600 hover:text-primary transition-colors">Tarifs</a>
+            <Link to="/dashboard/settings" className="text-gray-600 hover:text-primary transition-colors">
+              {t('subscription')}
+            </Link>
             <Link to="/login">
               <Button variant="ghost">Se connecter</Button>
             </Link>
             <Link to="/signup">
               <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">Essai gratuit</Button>
             </Link>
+            <LanguageSwitcher />
           </nav>
         </div>
       </header>
